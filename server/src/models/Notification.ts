@@ -17,6 +17,13 @@ export type NotificationType =
   | 'answer_received'
   | 'want_match'
   | 'want_fulfilled_suggestion'
+  | 'auto_bid_placed'
+  | 'auto_bid_outbid'
+  | 'auto_bid_max_exceeded'
+  | 'auto_bid_enabled'
+  | 'auto_bid_updated'
+  | 'auto_bid_paused'
+  | 'auto_bid_disabled'
   | 'system';
 
 export interface INotification extends Document {
@@ -62,6 +69,13 @@ const notificationSchema = new Schema<INotification>(
         'answer_received',
         'want_match',
         'want_fulfilled_suggestion',
+        'auto_bid_placed',
+        'auto_bid_outbid',
+        'auto_bid_max_exceeded',
+        'auto_bid_enabled',
+        'auto_bid_updated',
+        'auto_bid_paused',
+        'auto_bid_disabled',
         'system',
       ],
       index: true,

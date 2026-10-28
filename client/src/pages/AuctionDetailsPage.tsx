@@ -13,12 +13,14 @@ import {
   Sparkles,
   Trophy,
   Zap,
+  Bot,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import type { Auction, Bid } from '../types/index.js';
 import { formatPrice, formatTimeRemaining, formatDate } from '../utils/formatters.js';
 import { AuctionQuestionsSection } from '../components/AuctionQuestionsSection.js';
+import { AutoBidCard } from '../components/AutoBidCard.js';
 
 export const AuctionDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -634,6 +636,16 @@ export const AuctionDetailsPage: React.FC = () => {
               </form>
             )}
           </div>
+
+          {/* Automatic Bidding (Proxy Bidding) Card */}
+          {auction && (
+            <AutoBidCard
+              auction={auction}
+              isSeller={Boolean(isSeller)}
+              currentUser={user}
+              onBidUpdated={loadAuctionData}
+            />
+          )}
         </div>
       </div>
 
@@ -693,6 +705,12 @@ export const AuctionDetailsPage: React.FC = () => {
                         {isLeading && (
                           <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-[#C2410C] text-white rounded-md shadow-xs">
                             Leading Bid
+                          </span>
+                        )}
+                        {bid.bidSource === 'AUTO' && (
+                          <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-orange-50 border border-orange-200 text-[#C2410C] rounded-md shadow-2xs flex items-center gap-1">
+                            <Bot className="w-3 h-3" />
+                            <span>Auto</span>
                           </span>
                         )}
                       </div>

@@ -165,6 +165,28 @@ At the end of every semester or academic year, senior students often leave behin
   - Shows extension alert: **"⏱️ Last-minute bid! Auction extended by 60 seconds."** immediately on extension.
   - Automatically updates countdown timers on both `AuctionDetailsPage` and marketplace cards without requiring a page refresh.
 
+### 11. Automatic Bidding (Proxy Bidding Engine)
+- **Private Maximum Ceiling**: Authenticated students can set a private maximum willingness-to-pay (`maxAmount`) in whole rupees for any active auction they do not own.
+- **Incremental Proxy Bidding**:
+  - Automatically places the lowest valid bid to take or maintain the lead.
+  - On fresh listings with 0 bids, starts at `startingPrice` (never jumping needlessly to the maximum).
+  - Automatically counters competing manual bids by one `minimumBidIncrement` up to the configured ceiling.
+- **Deterministic Multi-Bidder Resolution**:
+  - When competing proxy bidders collide, the higher ceiling immediately wins the lead at one increment above the opponent's maximum (or at their own ceiling if increment exceeds it), avoiding intermediate loops.
+  - **Deterministic Tie-Breaker**: If two students register the exact same maximum amount, the student who registered that maximum first (`maxRegisteredAt`) wins the tie.
+- **Strict Confidentiality & Privacy**:
+  - A student's `maxAmount` is strictly confidential and never leaked in public auction queries, bid history, or Socket.IO events.
+  - Only the authenticated owner can retrieve their limit via `GET /api/auctions/:id/auto-bid/me`.
+  - Public bid history displays proxy bids with an informative badge (`AUTO`) without exposing the ceiling.
+- **Full Lifecycle Controls**:
+  - Students can raise or lower their ceiling at any time without retroactively modifying previously accepted bids.
+  - Students can pause (`PAUSED`), resume (`ACTIVE`), or disable (`DISABLED`) automatic bidding on demand.
+- **Anti-Sniping Integration**:
+  - Automatic bids placed within the final 30 seconds of an auction trigger the anti-sniping extension rule, automatically extending the closing deadline by 60 seconds (`auction:extended`).
+- **Dedicated Auto-Bid Card & Notifications**:
+  - Responsive card on `AuctionDetailsPage` with real-time status banners, pre-activation confirmation modal, ceiling editor, and pause/disable buttons.
+  - Real-time in-app alerts: `auto_bid_placed`, `auto_bid_outbid`, `auto_bid_max_exceeded`, `auto_bid_enabled`, `auto_bid_updated`, `auto_bid_paused`, and `auto_bid_disabled`.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -419,10 +441,14 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - `DELETE /api/auctions/:id` — Cancel listing (protected, rejected after first bid)
 - `GET /api/auctions/my-listings` — Seller's personal listing dashboard
 
-### Bidding
-- `POST /api/auctions/:id/bids` — Submit bid with atomic concurrency & fairness validation
-- `GET /api/auctions/:id/bids` — Public bid history (safe projection without private data)
+### Bidding & Automatic Proxy Bidding
+- `POST /api/auctions/:id/bids` — Submit manual bid with atomic concurrency & fairness validation
+- `GET /api/auctions/:id/bids` — Public bid history (safe projection displaying bidder name and AUTO source without exposing ceilings)
 - `GET /api/bids/my-bids` — Student's personal bidding activity & win/outbid status
+- `POST /api/auctions/:id/auto-bid` — Enable or configure automatic proxy bidding with private `maxAmount` (protected, non-sellers only)
+- `PATCH /api/auctions/:id/auto-bid` — Update ceiling or toggle status (`active` / `paused`)
+- `GET /api/auctions/:id/auto-bid/me` — Privately retrieve authenticated student's own auto-bid configuration and lead status
+- `DELETE /api/auctions/:id/auto-bid` — Disable automatic bidding (past bids in bid history remain intact)
 
 ### Transactions & Campus Handover
 - `GET /api/transactions` — Student's active and completed handovers
@@ -479,6 +505,9 @@ npx tsx server/src/scripts/testWants.ts
 
 # 6. Anti-Sniping & Last-Minute Extensions Suite (12 tests)
 npx tsx server/src/scripts/testAntiSniping.ts
+
+# 7. Automatic Bidding (Proxy Bidding) Suite (42 tests)
+npx tsx server/src/scripts/testAutoBidding.ts
 ```
 
 ### Images

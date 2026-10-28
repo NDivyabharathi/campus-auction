@@ -7,6 +7,7 @@ import { AuthRequest } from '../middleware/auth.js';
 import { broadcastAuctionUpdate } from '../socket.js';
 import { processAuctionClosure } from '../services/auctionClosureService.js';
 import { createNotification } from '../services/notificationService.js';
+import { evaluateProxyBids } from '../services/proxyBidService.js';
 
 export const placeBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -181,6 +182,7 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
       auctionId: activeAuction._id,
       bidderId,
       amount: bidAmount,
+      bidSource: 'MANUAL',
       createdAt: now,
     });
 
@@ -236,6 +238,11 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
         actorId: bidderId.toString(),
       }).catch((err) => console.error('[Notification Error] Outbid alert:', err));
     }
+
+    // 10. Re-evaluate active auto-bidders asynchronously
+    evaluateProxyBids(activeAuction._id.toString()).catch((err) =>
+      console.error('[Proxy Evaluation Error after Manual Bid]', err)
+    );
 
     res.status(201).json({
       success: true,

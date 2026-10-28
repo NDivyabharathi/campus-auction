@@ -4,6 +4,7 @@ export interface IBid extends Document {
   auctionId: mongoose.Types.ObjectId;
   bidderId: mongoose.Types.ObjectId;
   amount: number;
+  bidSource?: 'MANUAL' | 'AUTO';
   createdAt: Date;
 }
 
@@ -25,6 +26,12 @@ const bidSchema = new Schema<IBid>(
       type: Number,
       required: true,
       min: [1, 'Bid amount must be positive'],
+    },
+    bidSource: {
+      type: String,
+      enum: ['MANUAL', 'AUTO'],
+      default: 'MANUAL',
+      index: true,
     },
   },
   {

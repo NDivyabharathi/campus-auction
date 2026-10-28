@@ -9,6 +9,7 @@ import { Notification } from '../models/Notification.js';
 import { Question } from '../models/Question.js';
 import { Want } from '../models/Want.js';
 import { WantMatch } from '../models/WantMatch.js';
+import { AutoBid } from '../models/AutoBid.js';
 
 const DEMO_PASSWORD = 'kongupassword123';
 
@@ -26,6 +27,7 @@ export const seedDatabase = async () => {
     await Question.deleteMany({});
     await Want.deleteMany({});
     await WantMatch.deleteMany({});
+    await AutoBid.deleteMany({});
     console.log('[Seed] Cleared existing demo data.');
 
     // 1. Create Student Accounts

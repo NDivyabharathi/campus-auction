@@ -46,9 +46,32 @@ export interface Bid {
   bidderId: {
     _id: string;
     fullName: string;
+    department?: string;
   } | string;
   amount: number;
+  bidSource?: 'MANUAL' | 'AUTO';
   createdAt: string;
+}
+
+export type AutoBidStatus = 'active' | 'paused' | 'disabled';
+
+export interface AutoBid {
+  _id: string;
+  auctionId: string;
+  userId: string;
+  maxAmount: number;
+  status: AutoBidStatus;
+  maxRegisteredAt: string;
+  lastAutoBidAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface MyAutoBidResponse {
+  success: boolean;
+  autoBid: AutoBid | null;
+  isLeading: boolean;
+  currentLeadingBid: number;
 }
 
 export type TransactionStatus =
@@ -95,6 +118,13 @@ export type NotificationType =
   | 'answer_received'
   | 'want_match'
   | 'want_fulfilled_suggestion'
+  | 'auto_bid_placed'
+  | 'auto_bid_outbid'
+  | 'auto_bid_max_exceeded'
+  | 'auto_bid_enabled'
+  | 'auto_bid_updated'
+  | 'auto_bid_paused'
+  | 'auto_bid_disabled'
   | 'system';
 
 export interface AppNotification {

@@ -16,6 +16,9 @@ import {
   Sparkles,
   ExternalLink,
   Volume2,
+  AlertTriangle,
+  PauseCircle,
+  Bot,
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext.js';
 import { formatDate } from '../utils/formatters.js';
@@ -84,6 +87,16 @@ export const NotificationsPage: React.FC = () => {
         return <Sparkles className="w-5 h-5 text-[#C2410C]" />;
       case 'want_fulfilled_suggestion':
         return <CheckCircle2 className="w-5 h-5 text-purple-600" />;
+      case 'auto_bid_placed':
+      case 'auto_bid_enabled':
+      case 'auto_bid_updated':
+        return <Bot className="w-5 h-5 text-[#C2410C]" />;
+      case 'auto_bid_outbid':
+      case 'auto_bid_max_exceeded':
+        return <AlertTriangle className="w-5 h-5 text-amber-600" />;
+      case 'auto_bid_paused':
+      case 'auto_bid_disabled':
+        return <PauseCircle className="w-5 h-5 text-[#78716C]" />;
       default:
         return <AlertCircle className="w-5 h-5 text-[#78716C]" />;
     }

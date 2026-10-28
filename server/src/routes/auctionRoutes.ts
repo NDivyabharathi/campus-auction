@@ -9,6 +9,12 @@ import {
 } from '../controllers/auctionController.js';
 import { placeBid, getAuctionBids } from '../controllers/bidController.js';
 import { getAuctionQuestions, createQuestion } from '../controllers/questionController.js';
+import {
+  enableAutoBid,
+  updateAutoBid,
+  getMyAutoBid,
+  disableAutoBid,
+} from '../controllers/autoBidController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -33,6 +39,12 @@ router.post('/:auctionId/questions', authenticate, createQuestion);
 
 // Place bid on an auction
 router.post('/:id/bids', authenticate, placeBid);
+
+// Automatic Bidding (Proxy Bidding)
+router.post('/:id/auto-bid', authenticate, enableAutoBid);
+router.patch('/:id/auto-bid', authenticate, updateAutoBid);
+router.get('/:id/auto-bid/me', authenticate, getMyAutoBid);
+router.delete('/:id/auto-bid', authenticate, disableAutoBid);
 
 // Create new auction listing
 router.post('/', authenticate, createAuction);
