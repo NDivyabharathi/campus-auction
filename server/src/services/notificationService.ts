@@ -195,3 +195,4 @@ export const deleteNotification = async (
 
   return false;
 };
+

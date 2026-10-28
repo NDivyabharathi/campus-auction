@@ -152,3 +152,4 @@ export const dismissNotification = async (req: AuthRequest, res: Response): Prom
     });
   }
 };
+
