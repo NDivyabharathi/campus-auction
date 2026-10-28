@@ -190,18 +190,38 @@ async function runAssistantTests() {
   }
 
   // Test 15: Bid recommendation for 0-bid auction (should equal startingPrice)
-  const mathBook = await Auction.findOne({ title: /Engineering Mathematics/ });
-  if (mathBook) {
-    const rec0 = await getBidRecommendation(divya._id.toString(), undefined, {
-      currentAuctionId: mathBook._id.toString(),
+  let zeroBidAuction = await Auction.findOne({ bidCount: 0, status: 'active' });
+  let createdTemp = false;
+  if (!zeroBidAuction) {
+    zeroBidAuction = await Auction.create({
+      sellerId: divya._id,
+      title: 'Temporary Test Drawing Board (Zero Bids)',
+      description: 'Used for testing zero-bid recommendation logic.',
+      category: 'Laboratory Equipment',
+      condition: 'Good',
+      startingPrice: 250,
+      minimumBidIncrement: 25,
+      closingAt: new Date(Date.now() + 2 * 24 * 3600 * 1000),
+      status: 'active',
+      currentLeadingBid: 0,
+      bidCount: 0,
     });
-    assert(
-      'Query 15: For 0 bids, minimumNextBid equals startingPrice',
-      rec0.recommendation !== null &&
-        rec0.recommendation.minimumNextBid === mathBook.startingPrice &&
-        rec0.recommendation.bidCount === 0,
-      rec0
-    );
+    createdTemp = true;
+  }
+
+  const rec0 = await getBidRecommendation(rahul._id.toString(), undefined, {
+    currentAuctionId: zeroBidAuction._id.toString(),
+  });
+  assert(
+    'Query 15: For 0 bids, minimumNextBid equals startingPrice',
+    rec0.recommendation !== null &&
+      rec0.recommendation.minimumNextBid === zeroBidAuction.startingPrice &&
+      rec0.recommendation.bidCount === 0,
+    rec0
+  );
+
+  if (createdTemp) {
+    await Auction.deleteOne({ _id: zeroBidAuction._id });
   }
 
   // Test 16: End-to-end processAssistantMessage
