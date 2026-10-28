@@ -52,7 +52,20 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
-    // 3. Status rule
+    const now = new Date();
+
+    // 3. Schedule & Status rule
+    if (
+      auction.status === 'scheduled' ||
+      (auction.startTime && new Date(auction.startTime).getTime() > now.getTime())
+    ) {
+      res.status(400).json({
+        success: false,
+        message: 'Bidding has not opened yet for this scheduled auction.',
+      });
+      return;
+    }
+
     if (auction.status !== 'active') {
       res.status(400).json({
         success: false,
@@ -63,7 +76,6 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
 
     // 4. Server-authoritative closing time and anti-sniping extension rule
     let activeAuction = auction;
-    const now = new Date();
     let currentClosingTime = new Date(activeAuction.closingAt);
     let remainingMs = currentClosingTime.getTime() - now.getTime();
 

@@ -8,9 +8,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  Calendar,
 } from 'lucide-react';
 import { api } from '../services/api.js';
-import { CATEGORIES, CONDITIONS } from '../utils/formatters.js';
+import { CATEGORIES, CONDITIONS, formatISTDateTime } from '../utils/formatters.js';
 
 export const CreateListingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,16 +22,30 @@ export const CreateListingPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState<number | ''>(100);
   const [minimumBidIncrement, setMinimumBidIncrement] = useState<number | ''>(20);
-  
-  // Set default closing date 3 days in future
-  const defaultClosing = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
-  // Format for datetime-local input: YYYY-MM-DDTHH:MM
-  const formatForInput = (d: Date) => {
+
+  // Duration option: '1d' | '3d' | '7d' | 'custom'
+  const [durationType, setDurationType] = useState<'1d' | '3d' | '7d' | 'custom'>('3d');
+
+  // Format Date for HTML date input: YYYY-MM-DD
+  const formatDateForInput = (d: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   };
 
-  const [closingAt, setClosingAt] = useState(formatForInput(defaultClosing));
+  // Format Date for HTML time input: HH:MM
+  const formatTimeForInput = (d: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const defaultOpen = new Date(Date.now() + 15 * 60 * 1000); // 15 mins in future for custom schedule default
+  const defaultClose = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+
+  const [openingDate, setOpeningDate] = useState(() => formatDateForInput(defaultOpen));
+  const [openingTime, setOpeningTime] = useState(() => formatTimeForInput(defaultOpen));
+  const [closingDate, setClosingDate] = useState(() => formatDateForInput(defaultClose));
+  const [closingTime, setClosingTime] = useState(() => formatTimeForInput(defaultClose));
+
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -72,10 +87,6 @@ export const CreateListingPage: React.FC = () => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const setDurationPreset = (days: number) => {
-    const target = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-    setClosingAt(formatForInput(target));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,10 +112,47 @@ export const CreateListingPage: React.FC = () => {
       return;
     }
 
-    const selectedClosing = new Date(closingAt);
-    if (isNaN(selectedClosing.getTime()) || selectedClosing <= new Date()) {
-      setError('Closing date and time must be in the future.');
-      return;
+    let computedStartTime: Date;
+    let computedClosingAt: Date;
+
+    if (durationType === '1d') {
+      computedStartTime = new Date();
+      computedClosingAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    } else if (durationType === '3d') {
+      computedStartTime = new Date();
+      computedClosingAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    } else if (durationType === '7d') {
+      computedStartTime = new Date();
+      computedClosingAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    } else {
+      // Custom schedule
+      if (!openingDate || !openingTime) {
+        setError('Please specify both the auction opening date and opening time.');
+        return;
+      }
+      if (!closingDate || !closingTime) {
+        setError('Please specify both the auction closing date and closing time.');
+        return;
+      }
+      computedStartTime = new Date(`${openingDate}T${openingTime}`);
+      computedClosingAt = new Date(`${closingDate}T${closingTime}`);
+
+      if (isNaN(computedStartTime.getTime())) {
+        setError('Invalid auction opening date or time.');
+        return;
+      }
+      if (isNaN(computedClosingAt.getTime())) {
+        setError('Invalid auction closing date or time.');
+        return;
+      }
+      if (computedStartTime.getTime() < Date.now() - 60_000) {
+        setError('Auction opening date and time cannot be set in the past.');
+        return;
+      }
+      if (computedClosingAt.getTime() <= computedStartTime.getTime()) {
+        setError('Auction closing time must be later than opening time.');
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -136,7 +184,8 @@ export const CreateListingPage: React.FC = () => {
         condition,
         startingPrice: Number(startingPrice),
         minimumBidIncrement: Number(minimumBidIncrement),
-        closingAt: selectedClosing.toISOString(),
+        startTime: computedStartTime.toISOString(),
+        closingAt: computedClosingAt.toISOString(),
         imageUrls: uploadedUrls,
       });
 
@@ -341,48 +390,184 @@ export const CreateListingPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Auction Duration & Scheduling Selector */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
-              Auction Closing Date & Time *
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-2">
+              Auction Schedule & Duration *
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
-                <Clock className="w-4 h-4" />
-              </div>
-              <input
-                type="datetime-local"
-                required
-                value={closingAt}
-                onChange={(e) => setClosingAt(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
-              />
+
+            {/* 4 Duration Options */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+              <button
+                type="button"
+                onClick={() => setDurationType('1d')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  durationType === '1d'
+                    ? 'bg-[#C2410C] text-white border-[#C2410C] shadow-sm'
+                    : 'bg-[#FFFBF5] text-[#292524] border-[#E7E0D8] hover:border-[#FED7AA] hover:bg-[#FFEDD5]/40'
+                }`}
+              >
+                1 Day (24 hrs)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDurationType('3d')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  durationType === '3d'
+                    ? 'bg-[#C2410C] text-white border-[#C2410C] shadow-sm'
+                    : 'bg-[#FFFBF5] text-[#292524] border-[#E7E0D8] hover:border-[#FED7AA] hover:bg-[#FFEDD5]/40'
+                }`}
+              >
+                3 Days (Default)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDurationType('7d')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  durationType === '7d'
+                    ? 'bg-[#C2410C] text-white border-[#C2410C] shadow-sm'
+                    : 'bg-[#FFFBF5] text-[#292524] border-[#E7E0D8] hover:border-[#FED7AA] hover:bg-[#FFEDD5]/40'
+                }`}
+              >
+                1 Week (7 Days)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDurationType('custom')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-1.5 transition-all ${
+                  durationType === 'custom'
+                    ? 'bg-[#C2410C] text-white border-[#C2410C] shadow-sm'
+                    : 'bg-[#FFFBF5] text-[#292524] border-[#E7E0D8] hover:border-[#FED7AA] hover:bg-[#FFEDD5]/40'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Custom Schedule</span>
+              </button>
             </div>
 
-            {/* Quick preset buttons */}
-            <div className="mt-2.5 flex items-center gap-2">
-              <span className="text-xs text-[#78716C]">Quick Presets:</span>
-              <button
-                type="button"
-                onClick={() => setDurationPreset(1)}
-                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
-              >
-                +1 Day
-              </button>
-              <button
-                type="button"
-                onClick={() => setDurationPreset(3)}
-                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
-              >
-                +3 Days
-              </button>
-              <button
-                type="button"
-                onClick={() => setDurationPreset(7)}
-                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
-              >
-                +7 Days (1 Week)
-              </button>
-            </div>
+            {/* Fixed Presets Summary */}
+            {durationType !== 'custom' ? (
+              <div className="p-4 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] text-xs space-y-1.5">
+                <div className="flex items-center gap-2 text-[#292524] font-bold">
+                  <Clock className="w-4 h-4 text-[#C2410C]" />
+                  <span>
+                    Opens Immediately • Closes in{' '}
+                    {durationType === '1d' ? '24 Hours' : durationType === '3d' ? '3 Days' : '7 Days'}
+                  </span>
+                </div>
+                <p className="text-[#78716C]">
+                  Projected Closing Time:{' '}
+                  <strong className="text-[#292524]">
+                    {formatISTDateTime(
+                      new Date(
+                        Date.now() +
+                          (durationType === '1d' ? 1 : durationType === '3d' ? 3 : 7) *
+                            24 *
+                            60 *
+                            60 *
+                            1000
+                      )
+                    )}
+                  </strong>
+                </p>
+              </div>
+            ) : (
+              /* Custom Schedule Detailed Date/Time Inputs */
+              <div className="space-y-4 p-5 rounded-2xl bg-[#FFFBF5] border border-[#FED7AA] shadow-2xs">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#C2410C]">
+                  <Calendar className="w-4 h-4" />
+                  <span>Custom Schedule Settings (Asia/Kolkata - IST)</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Opening Date & Time */}
+                  <div className="space-y-3 bg-white p-3.5 rounded-xl border border-[#E7E0D8]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#292524] block">
+                      Auction Opening (IST)
+                    </span>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#78716C] mb-1">
+                        Opening Date *
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={openingDate}
+                        min={formatDateForInput(new Date())}
+                        onChange={(e) => setOpeningDate(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-[#FFFBF5] border border-[#E7E0D8] rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524] font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#78716C] mb-1">
+                        Opening Time *
+                      </label>
+                      <input
+                        type="time"
+                        required
+                        value={openingTime}
+                        onChange={(e) => setOpeningTime(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-[#FFFBF5] border border-[#E7E0D8] rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524] font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Closing Date & Time */}
+                  <div className="space-y-3 bg-white p-3.5 rounded-xl border border-[#E7E0D8]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#292524] block">
+                      Auction Closing (IST)
+                    </span>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#78716C] mb-1">
+                        Closing Date *
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={closingDate}
+                        min={openingDate || formatDateForInput(new Date())}
+                        onChange={(e) => setClosingDate(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-[#FFFBF5] border border-[#E7E0D8] rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524] font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#78716C] mb-1">
+                        Closing Time *
+                      </label>
+                      <input
+                        type="time"
+                        required
+                        value={closingTime}
+                        onChange={(e) => setClosingTime(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-[#FFFBF5] border border-[#E7E0D8] rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524] font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule Summary Preview */}
+                <div className="pt-2 text-[11px] text-[#78716C] flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-t border-[#FED7AA]/60">
+                  <span>
+                    Status:{' '}
+                    <strong className="text-[#C2410C]">
+                      {new Date(`${openingDate}T${openingTime}`).getTime() > Date.now()
+                        ? 'Scheduled (Opens in future)'
+                        : 'Opens immediately'}
+                    </strong>
+                  </span>
+                  <span>
+                    Closing: <strong className="text-[#292524]">{closingDate} at {closingTime} IST</strong>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

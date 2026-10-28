@@ -187,6 +187,26 @@ At the end of every semester or academic year, senior students often leave behin
   - Responsive card on `AuctionDetailsPage` with real-time status banners, pre-activation confirmation modal, ceiling editor, and pause/disable buttons.
   - Real-time in-app alerts: `auto_bid_placed`, `auto_bid_outbid`, `auto_bid_max_exceeded`, `auto_bid_enabled`, `auto_bid_updated`, `auto_bid_paused`, and `auto_bid_disabled`.
 
+### 12. Custom Auction Scheduling & Preset Durations
+- **Preset Durations Preserved**: Sellers can choose classic 1-day (24h), 3-day (72h), or 1-week (168h) durations, opening immediately as `active` auctions.
+- **Custom Schedule Option**:
+  - Sellers can select **Custom Schedule** to specify explicit Opening Date & Time and Closing Date & Time.
+  - Strict validation ensures valid timestamps, closing time after opening time, closing time in the future, and opening time not set in the past.
+  - Listings with opening times in the future are assigned the `scheduled` lifecycle status.
+- **Authoritative Server Time & Bidding Guards**:
+  - Manual bidding, automatic bidding, and proxy resolution are strictly rejected on `scheduled` listings before the opening time arrives (`startTime > serverNow` or `status === 'scheduled'`).
+  - Automatic bidding configuration is disabled while an auction is scheduled.
+- **Automatic Lifecycle Activation**:
+  - Background worker checks every 10 seconds and atomically activates scheduled auctions when `startTime <= serverNow`, transitioning status to `active` and broadcasting `auction_opened` and `marketplace_update` events via Socket.IO.
+  - On-the-fly activation on `GET /api/auctions` and `GET /api/auctions/:id` ensures students never encounter stale scheduled listings.
+- **Real-Time UI & IST Formatting**:
+  - All opening and closing dates and times are presented in Asia/Kolkata (`en-IN` IST timezone).
+  - `AuctionCard` displays an amber `Scheduled` badge with "Opens in [countdown]" and starting price.
+  - `AuctionDetailsPage` features a dedicated "Bidding Opens In" countdown box, IST opening timestamp banner, and seamless real-time unlock via Socket.IO when the opening time arrives.
+  - `MarketplacePage` includes a dedicated status filter option: "Scheduled Auctions".
+- **Schedule Editing Rules**:
+  - Sellers can edit schedule timing only while the auction is `scheduled` and has 0 accepted bids. Schedule changes are blocked once bids are placed.
+
 ---
 
 ## 🛠️ Technology Stack

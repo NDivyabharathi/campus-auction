@@ -53,6 +53,15 @@ export async function executeBidAtomically(params: {
     return { success: false, error: 'Auction listing not found.' };
   }
 
+  const now = new Date();
+
+  if (
+    auction.status === 'scheduled' ||
+    (auction.startTime && new Date(auction.startTime).getTime() > now.getTime())
+  ) {
+    return { success: false, error: 'Bidding has not opened yet for this scheduled auction.' };
+  }
+
   if (auction.status !== 'active') {
     return { success: false, error: `Auction is ${auction.status}. Bidding is closed.` };
   }
@@ -61,7 +70,6 @@ export async function executeBidAtomically(params: {
     return { success: false, error: 'You cannot place a bid on your own auction listing.' };
   }
 
-  const now = new Date();
   let currentClosingTime = new Date(auction.closingAt);
   let remainingMs = currentClosingTime.getTime() - now.getTime();
 
@@ -221,7 +229,12 @@ export async function evaluateProxyBids(auctionId: string): Promise<{
 
       // 1. Fetch fresh auction state
       const auction = await Auction.findById(auctionId);
-      if (!auction || auction.status !== 'active' || new Date(auction.closingAt) <= new Date()) {
+      if (
+        !auction ||
+        auction.status !== 'active' ||
+        (auction.startTime && new Date(auction.startTime) > new Date()) ||
+        new Date(auction.closingAt) <= new Date()
+      ) {
         break;
       }
 

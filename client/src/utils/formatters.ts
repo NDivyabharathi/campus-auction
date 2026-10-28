@@ -34,8 +34,49 @@ export const formatTimeRemaining = (closingAt: string | Date): { text: string; i
   return { text: `${seconds}s left`, isEnded: false, isUrgent: true };
 };
 
+export const formatTimeUntil = (
+  openingAt: string | Date
+): { text: string; isStarted: boolean } => {
+  const start = new Date(openingAt).getTime();
+  const now = new Date().getTime();
+  const diff = start - now;
+
+  if (diff <= 0) {
+    return { text: 'Bidding Open', isStarted: true };
+  }
+
+  const seconds = Math.floor((diff / 1000) % 60);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  if (days > 0) {
+    return { text: `Opens in ${days}d ${hours}h`, isStarted: false };
+  }
+  if (hours > 0) {
+    return { text: `Opens in ${hours}h ${minutes}m`, isStarted: false };
+  }
+  if (minutes > 0) {
+    return { text: `Opens in ${minutes}m ${seconds}s`, isStarted: false };
+  }
+  return { text: `Opens in ${seconds}s`, isStarted: false };
+};
+
+export const formatISTDateTime = (dateString: string | Date): string => {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(dateString)) + ' IST';
+};
+
 export const formatDate = (dateString: string | Date): string => {
   return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
     month: 'short',
     day: 'numeric',
     year: 'numeric',

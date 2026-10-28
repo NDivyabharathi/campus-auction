@@ -12,7 +12,14 @@ export type AuctionCategory =
 
 export type ItemCondition = 'New' | 'Like New' | 'Good' | 'Fair' | 'Heavily Used';
 
-export type AuctionStatus = 'active' | 'ended' | 'reserved' | 'sold' | 'unsold' | 'cancelled';
+export type AuctionStatus =
+  | 'scheduled'
+  | 'active'
+  | 'ended'
+  | 'reserved'
+  | 'sold'
+  | 'unsold'
+  | 'cancelled';
 
 export interface IAuction extends Document {
   sellerId: mongoose.Types.ObjectId;
@@ -23,6 +30,7 @@ export interface IAuction extends Document {
   imageUrls: string[];
   startingPrice: number;
   minimumBidIncrement: number;
+  startTime: Date;
   closingAt: Date;
   status: AuctionStatus;
   currentLeadingBid: number;
@@ -95,6 +103,11 @@ const auctionSchema = new Schema<IAuction>(
       min: [1, 'Minimum bid increment must be greater than zero'],
       default: 10,
     },
+    startTime: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
     closingAt: {
       type: Date,
       required: [true, 'Closing date and time is required'],
@@ -102,7 +115,7 @@ const auctionSchema = new Schema<IAuction>(
     },
     status: {
       type: String,
-      enum: ['active', 'ended', 'reserved', 'sold', 'unsold', 'cancelled'],
+      enum: ['scheduled', 'active', 'ended', 'reserved', 'sold', 'unsold', 'cancelled'],
       default: 'active',
       index: true,
     },
@@ -126,6 +139,7 @@ const auctionSchema = new Schema<IAuction>(
 );
 
 auctionSchema.index({ status: 1, closingAt: 1 });
+auctionSchema.index({ status: 1, startTime: 1 });
 auctionSchema.index({ sellerId: 1, createdAt: -1 });
 
 export const Auction = mongoose.model<IAuction>('Auction', auctionSchema);

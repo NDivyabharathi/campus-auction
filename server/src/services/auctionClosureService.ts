@@ -2,21 +2,88 @@ import mongoose from 'mongoose';
 import { Auction } from '../models/Auction.js';
 import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
-import { broadcastAuctionUpdate } from '../socket.js';
+import { broadcastAuctionUpdate, getIO } from '../socket.js';
 import { createNotification } from './notificationService.js';
-import { scanAndExpireWants } from './wantService.js';
+import { scanAndExpireWants, checkNewListingMatches } from './wantService.js';
+
+export const activateScheduledAuction = async (auctionId: string): Promise<any> => {
+  try {
+    const now = new Date();
+    const updated = await Auction.findOneAndUpdate(
+      {
+        _id: auctionId,
+        status: 'scheduled',
+        startTime: { $lte: now },
+        closingAt: { $gt: now },
+      },
+      {
+        $set: { status: 'active' },
+      },
+      { new: true }
+    )
+      .populate('sellerId', 'fullName department year createdAt')
+      .populate('currentLeadingBidderId', 'fullName');
+
+    if (updated) {
+      console.log(`[Auction Activation] Scheduled auction "${updated.title}" is now LIVE.`);
+      
+      // Dedicated event for auction detail listeners
+      broadcastAuctionUpdate(updated._id.toString(), 'auction_opened', {
+        auctionId: updated._id.toString(),
+        status: 'active',
+        startTime: updated.startTime,
+        closingAt: updated.closingAt,
+      });
+
+      // Global auction_opened broadcast
+      const io = getIO();
+      if (io) {
+        io.emit('auction_opened', {
+          auctionId: updated._id.toString(),
+          status: 'active',
+          startTime: updated.startTime,
+          closingAt: updated.closingAt,
+        });
+      }
+
+      // Global marketplace update event
+      broadcastAuctionUpdate(updated._id.toString(), 'marketplace_update', {
+        auctionId: updated._id.toString(),
+        event: 'auction_opened',
+        data: {
+          status: 'active',
+          startTime: updated.startTime,
+          closingAt: updated.closingAt,
+        },
+      });
+
+      // Scan and alert active saved wants matching this newly activated listing
+      checkNewListingMatches(updated).catch((err) =>
+        console.error('[Want Matching Error on Scheduled Activation]', err)
+      );
+    }
+    return updated;
+  } catch (err) {
+    console.error(`[Auction Activation Error] Failed to activate auction ${auctionId}:`, err);
+    return null;
+  }
+};
 
 export const processAuctionClosure = async (auctionId: string): Promise<any> => {
   try {
     const auction = await Auction.findById(auctionId);
     if (!auction) return null;
 
-    // If auction is already ended/reserved/sold/unsold/cancelled, don't re-process
-    if (auction.status !== 'active') {
+    const now = new Date();
+
+    // If auction is not active and not an expired scheduled auction, don't re-process
+    if (
+      auction.status !== 'active' &&
+      !(auction.status === 'scheduled' && new Date(auction.closingAt).getTime() <= now.getTime())
+    ) {
       return auction;
     }
 
-    const now = new Date();
     // Anti-Sniping Protection: if auction was extended into the future by a last-minute bid, abort closure
     if (new Date(auction.closingAt).getTime() > now.getTime()) {
       return auction;
@@ -28,11 +95,11 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       .populate('bidderId', 'fullName email department year');
 
     if (!highestBid) {
-      // No bids placed -> Atomically mark unsold if still expired and active
+      // No bids placed -> Atomically mark unsold if still expired and active/scheduled
       const updated = await Auction.findOneAndUpdate(
         {
           _id: auction._id,
-          status: 'active',
+          status: { $in: ['active', 'scheduled'] },
           closingAt: { $lte: now },
         },
         {
@@ -189,20 +256,34 @@ export const startAuctionClosureWorker = (intervalMs = 10000) => {
     try {
       const now = new Date();
 
-      // 1. Scan for expired active auctions to close
-      const expiredActiveAuctions = await Auction.find({
-        status: 'active',
+      // 1. Scan for scheduled auctions ready to activate (startTime <= now)
+      const scheduledAuctionsToActivate = await Auction.find({
+        status: 'scheduled',
+        startTime: { $lte: now },
+        closingAt: { $gt: now },
+      }).select('_id');
+
+      if (scheduledAuctionsToActivate.length > 0) {
+        console.log(`[Worker] Found ${scheduledAuctionsToActivate.length} scheduled auction(s) ready to activate.`);
+        for (const auc of scheduledAuctionsToActivate) {
+          await activateScheduledAuction(auc._id.toString());
+        }
+      }
+
+      // 2. Scan for expired active/scheduled auctions to close
+      const expiredAuctions = await Auction.find({
+        status: { $in: ['active', 'scheduled'] },
         closingAt: { $lte: now },
       }).select('_id');
 
-      if (expiredActiveAuctions.length > 0) {
-        console.log(`[Worker] Found ${expiredActiveAuctions.length} expired active auctions to close.`);
-        for (const auc of expiredActiveAuctions) {
+      if (expiredAuctions.length > 0) {
+        console.log(`[Worker] Found ${expiredAuctions.length} expired auction(s) to close.`);
+        for (const auc of expiredAuctions) {
           await processAuctionClosure(auc._id.toString());
         }
       }
 
-      // 2. Scan for auctions ending soon (< 5 minutes)
+      // 3. Scan for auctions ending soon (< 5 minutes)
       const endingSoonThreshold = 5 * 60 * 1000; // 5 minutes
       const inFiveMins = new Date(now.getTime() + endingSoonThreshold);
 
@@ -227,7 +308,7 @@ export const startAuctionClosureWorker = (intervalMs = 10000) => {
         }
       }
 
-      // 3. Scan and mark expired wants (past 30 days)
+      // 4. Scan and mark expired wants (past 30 days)
       await scanAndExpireWants();
     } catch (err) {
       console.error('[Worker Error] Auction closure scanner error:', err);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, ArrowUpRight, Flame, ShieldCheck } from 'lucide-react';
+import { Clock, ArrowUpRight, Flame, ShieldCheck, Calendar } from 'lucide-react';
 import type { Auction } from '../types/index.js';
-import { formatPrice, formatTimeRemaining } from '../utils/formatters.js';
+import { formatPrice, formatTimeRemaining, formatTimeUntil } from '../utils/formatters.js';
 
 interface AuctionCardProps {
   auction: Auction;
@@ -12,6 +12,22 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ auction }) => {
   const [time, setTime] = useState(() => formatTimeRemaining(auction.closingAt));
   const [imgError, setImgError] = useState(false);
 
+  const isScheduled =
+    auction.status === 'scheduled' ||
+    (Boolean(auction.startTime) && new Date(auction.startTime!).getTime() > Date.now());
+
+  const [openTime, setOpenTime] = useState(() =>
+    auction.startTime ? formatTimeUntil(auction.startTime) : { text: '', isStarted: true }
+  );
+
+  useEffect(() => {
+    if (!isScheduled || !auction.startTime) return;
+    const timer = setInterval(() => {
+      setOpenTime(formatTimeUntil(auction.startTime!));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isScheduled, auction.startTime]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(formatTimeRemaining(auction.closingAt));
@@ -20,7 +36,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ auction }) => {
   }, [auction.closingAt]);
 
   const hasLeadingBid = auction.bidCount > 0 && auction.currentLeadingBid > 0;
-  const isClosed = auction.status !== 'active' || time.isEnded;
+  const isClosed = !isScheduled && (auction.status !== 'active' || time.isEnded);
 
   const fallbackImage =
     'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80';
@@ -55,11 +71,13 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ auction }) => {
           </span>
         </div>
 
-        {/* Time Remaining Bar */}
+        {/* Time Remaining / Scheduled Bar */}
         <div className="absolute bottom-2.5 left-2.5 right-2.5">
           <div
             className={`px-3 py-1.5 rounded-xl backdrop-blur-md text-xs font-semibold flex items-center justify-between shadow-sm border ${
-              isClosed
+              isScheduled
+                ? 'bg-stone-900/90 text-amber-200 border-amber-600/40'
+                : isClosed
                 ? 'bg-[#1C1917]/90 text-stone-200 border-stone-800'
                 : time.isUrgent
                 ? 'bg-[#C2410C]/95 text-white border-[#C2410C] animate-pulse'
@@ -67,15 +85,19 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ auction }) => {
             }`}
           >
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{isClosed ? 'Closed' : time.text}</span>
+              {isScheduled ? <Calendar className="w-3.5 h-3.5 text-amber-400" /> : <Clock className="w-3.5 h-3.5" />}
+              <span>{isScheduled ? openTime.text : isClosed ? 'Closed' : time.text}</span>
             </div>
-            {auction.bidCount > 0 && !isClosed && (
+            {isScheduled ? (
+              <span className="text-[10px] uppercase font-extrabold text-amber-400 tracking-wider">
+                Scheduled
+              </span>
+            ) : auction.bidCount > 0 && !isClosed ? (
               <div className="flex items-center gap-1 text-[#C2410C]">
                 <Flame className="w-3.5 h-3.5 fill-[#C2410C]" />
                 <span className="text-[11px] font-bold">{auction.bidCount} bids</span>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

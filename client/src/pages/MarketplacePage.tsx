@@ -99,6 +99,18 @@ export const MarketplacePage: React.FC = () => {
         setAuctions((prev) =>
           prev.map((auc) => (auc._id === auctionId ? { ...auc, status: data.status } : auc))
         );
+      } else if (event === 'auction_opened' || event === 'auction:activated') {
+        setAuctions((prev) =>
+          prev.map((auc) => (auc._id === auctionId ? { ...auc, status: 'active' } : auc))
+        );
+      }
+    });
+
+    socket.on('auction_opened', (data: any) => {
+      if (data?.auctionId) {
+        setAuctions((prev) =>
+          prev.map((auc) => (auc._id === data.auctionId ? { ...auc, status: 'active' } : auc))
+        );
       }
     });
 
@@ -364,9 +376,10 @@ export const MarketplacePage: React.FC = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full p-2.5 bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C2410C]"
                 >
-                  <option value="active">Active Auctions Only</option>
+                  <option value="active">Active (Live) Auctions</option>
+                  <option value="scheduled">Scheduled Auctions</option>
                   <option value="ended">Ended Auctions</option>
-                  <option value="all">All Listings (Active & Closed)</option>
+                  <option value="all">All Listings (Active, Scheduled & Closed)</option>
                 </select>
               </div>
 

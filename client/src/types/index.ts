@@ -19,7 +19,14 @@ export type AuctionCategory =
 
 export type ItemCondition = 'New' | 'Like New' | 'Good' | 'Fair' | 'Heavily Used';
 
-export type AuctionStatus = 'active' | 'ended' | 'reserved' | 'sold' | 'unsold' | 'cancelled';
+export type AuctionStatus =
+  | 'scheduled'
+  | 'active'
+  | 'ended'
+  | 'reserved'
+  | 'sold'
+  | 'unsold'
+  | 'cancelled';
 
 export interface Auction {
   _id: string;
@@ -31,6 +38,7 @@ export interface Auction {
   imageUrls: string[];
   startingPrice: number;
   minimumBidIncrement: number;
+  startTime?: string;
   closingAt: string;
   status: AuctionStatus;
   currentLeadingBid: number;

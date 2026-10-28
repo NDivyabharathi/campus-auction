@@ -14,11 +14,18 @@ import {
   Trophy,
   Zap,
   Bot,
+  Calendar,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import type { Auction, Bid } from '../types/index.js';
-import { formatPrice, formatTimeRemaining, formatDate } from '../utils/formatters.js';
+import {
+  formatPrice,
+  formatTimeRemaining,
+  formatTimeUntil,
+  formatDate,
+  formatISTDateTime,
+} from '../utils/formatters.js';
 import { AuctionQuestionsSection } from '../components/AuctionQuestionsSection.js';
 import { AutoBidCard } from '../components/AutoBidCard.js';
 
@@ -38,8 +45,13 @@ export const AuctionDetailsPage: React.FC = () => {
   const [bidFeedback, setBidFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [timeRemaining, setTimeRemaining] = useState({ text: '', isEnded: false, isUrgent: false });
+  const [timeUntilOpen, setTimeUntilOpen] = useState({ text: '', isStarted: true });
   const [extensionAlert, setExtensionAlert] = useState<string | null>(null);
   const extensionTimerRef = useRef<any>(null);
+
+  const isScheduled =
+    auction?.status === 'scheduled' ||
+    (Boolean(auction?.startTime) && new Date(auction!.startTime!).getTime() > Date.now());
 
   // 1. Fetch Auction details and Bid history
   const loadAuctionData = async () => {
@@ -60,6 +72,9 @@ export const AuctionDetailsPage: React.FC = () => {
         setMinAcceptableBid(minBid);
         setBidInput(minBid);
         setTimeRemaining(formatTimeRemaining(auc.closingAt));
+        if (auc.startTime) {
+          setTimeUntilOpen(formatTimeUntil(auc.startTime));
+        }
       } else {
         setError(aucRes.data.message || 'Auction not found.');
       }
@@ -79,10 +94,17 @@ export const AuctionDetailsPage: React.FC = () => {
     loadAuctionData();
   }, [id]);
 
-  // 2. Countdown timer interval
+  // 2. Countdown timer intervals (opening and closing)
   useEffect(() => {
     if (!auction) return;
     const interval = setInterval(() => {
+      if (auction.startTime) {
+        const until = formatTimeUntil(auction.startTime);
+        setTimeUntilOpen(until);
+        if (until.isStarted && auction.status === 'scheduled') {
+          loadAuctionData();
+        }
+      }
       const remaining = formatTimeRemaining(auction.closingAt);
       setTimeRemaining(remaining);
       if (remaining.isEnded && auction.status === 'active') {
@@ -90,7 +112,7 @@ export const AuctionDetailsPage: React.FC = () => {
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [auction?.closingAt, auction?.status]);
+  }, [auction?.startTime, auction?.closingAt, auction?.status]);
 
   // 3. Socket.IO Real-time updates
   useEffect(() => {
@@ -102,6 +124,16 @@ export const AuctionDetailsPage: React.FC = () => {
       });
 
       socket.emit('join_auction', id);
+
+      const handleAuctionOpened = (data: any) => {
+        if (data.auctionId === id) {
+          setAuction((prev) => (prev ? { ...prev, status: 'active' } : null));
+          loadAuctionData();
+        }
+      };
+
+      socket.on('auction_opened', handleAuctionOpened);
+      socket.on('auction:activated', handleAuctionOpened);
 
       const handleAuctionExtended = (data: any) => {
         if (data.auctionId === id && data.newClosingTime) {
@@ -284,13 +316,13 @@ export const AuctionDetailsPage: React.FC = () => {
 
   const sellerObj: any = auction.sellerId;
   const isSeller = user && (user._id === sellerObj?._id || user._id === sellerObj);
-  const isClosed = auction.status !== 'active' || timeRemaining.isEnded;
+  const isClosed = !isScheduled && (auction.status !== 'active' || timeRemaining.isEnded);
   const hasLeadingBid = auction.bidCount > 0 && auction.currentLeadingBid > 0;
   const remainingSeconds = auction?.closingAt
     ? (new Date(auction.closingAt).getTime() - Date.now()) / 1000
     : 0;
   const isUnder30Seconds =
-    !isClosed && auction.status === 'active' && remainingSeconds > 0 && remainingSeconds <= 30;
+    !isClosed && !isScheduled && auction.status === 'active' && remainingSeconds > 0 && remainingSeconds <= 30;
 
   const fallbackImage =
     'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80';
@@ -333,7 +365,9 @@ export const AuctionDetailsPage: React.FC = () => {
               <div className="absolute top-4 left-4">
                 <span
                   className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-md ${
-                    auction.status === 'active' && !timeRemaining.isEnded
+                    isScheduled
+                      ? 'bg-amber-600/95 text-white'
+                      : auction.status === 'active' && !timeRemaining.isEnded
                       ? 'bg-[#15803D]/95 text-white'
                       : auction.status === 'reserved'
                       ? 'bg-[#C2410C]/95 text-white'
@@ -342,7 +376,11 @@ export const AuctionDetailsPage: React.FC = () => {
                       : 'bg-[#78716C]/95 text-white'
                   }`}
                 >
-                  {auction.status === 'active' && !timeRemaining.isEnded ? 'Active Auction' : auction.status}
+                  {isScheduled
+                    ? 'Scheduled'
+                    : auction.status === 'active' && !timeRemaining.isEnded
+                    ? 'Active Auction'
+                    : auction.status}
                 </span>
               </div>
             </div>
@@ -462,10 +500,12 @@ export const AuctionDetailsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Countdown Timer */}
+            {/* Countdown / Opening Timer */}
             <div
               className={`p-4 rounded-2xl border text-center transition-all ${
-                isClosed
+                isScheduled
+                  ? 'bg-amber-500/10 border-amber-300 text-amber-900'
+                  : isClosed
                   ? 'bg-[#1C1917] text-white border-stone-800'
                   : timeRemaining.isUrgent
                   ? 'bg-[#C2410C] text-white border-[#C2410C]'
@@ -473,14 +513,22 @@ export const AuctionDetailsPage: React.FC = () => {
               }`}
             >
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider">
-                <Clock className="w-4 h-4" />
-                <span>{isClosed ? 'Auction Closed' : 'Auction Closes In'}</span>
+                {isScheduled ? <Calendar className="w-4 h-4 text-amber-700" /> : <Clock className="w-4 h-4" />}
+                <span>
+                  {isScheduled
+                    ? 'Bidding Opens In'
+                    : isClosed
+                    ? 'Auction Closed'
+                    : 'Auction Closes In'}
+                </span>
               </div>
               <div className="text-2xl font-black tracking-tight mt-1">
-                {timeRemaining.text}
+                {isScheduled ? timeUntilOpen.text : timeRemaining.text}
               </div>
               <div className="text-[11px] opacity-80 mt-0.5">
-                Closing: {formatDate(auction.closingAt)}
+                {isScheduled && auction.startTime
+                  ? `Opening: ${formatISTDateTime(auction.startTime)}`
+                  : `Closing: ${formatISTDateTime(auction.closingAt)}`}
               </div>
             </div>
 
@@ -493,15 +541,28 @@ export const AuctionDetailsPage: React.FC = () => {
             )}
 
             {/* Anti-Sniping Warning Banner: Ending in <= 30 seconds */}
-            {!isClosed && isUnder30Seconds && !extensionAlert && (
+            {!isClosed && !isScheduled && isUnder30Seconds && !extensionAlert && (
               <div className="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center justify-center gap-2 animate-pulse shadow-2xs">
                 <Zap className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>⚡ Ending soon — valid bids may extend this auction.</span>
               </div>
             )}
 
-            {/* Outcome Display if Closed */}
-            {isClosed ? (
+            {/* Outcome Display: Scheduled / Closed / Seller / Student Bid Form */}
+            {isScheduled ? (
+              <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-2.5">
+                <Calendar className="w-8 h-8 text-amber-600 mx-auto" />
+                <div className="text-sm font-extrabold text-[#292524]">
+                  Bidding Opens on {auction.startTime ? formatISTDateTime(auction.startTime) : 'Scheduled Date'}
+                </div>
+                <p className="text-xs text-[#78716C] max-w-sm mx-auto">
+                  This auction is currently scheduled. Bids and automatic bidding will unlock once the opening time arrives.
+                </p>
+                <div className="pt-2 text-xs font-bold text-[#C2410C]">
+                  Starting Price: {formatPrice(auction.startingPrice)}
+                </div>
+              </div>
+            ) : isClosed ? (
               <div className="p-5 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] text-center space-y-2">
                 <Trophy className="w-8 h-8 text-[#C2410C] mx-auto" />
                 <div className="text-sm font-extrabold text-[#292524]">
@@ -638,7 +699,7 @@ export const AuctionDetailsPage: React.FC = () => {
           </div>
 
           {/* Automatic Bidding (Proxy Bidding) Card */}
-          {auction && (
+          {auction && !isScheduled && (
             <AutoBidCard
               auction={auction}
               isSeller={Boolean(isSeller)}

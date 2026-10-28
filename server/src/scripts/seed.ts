@@ -297,6 +297,26 @@ export const seedDatabase = async () => {
       { auctionId: cycle2._id, bidderId: sneha._id, amount: 1700, createdAt: new Date(now - 4 * 3600 * 1000) },
     ]);
 
+    // Listing 9: Scheduled Auction (Custom Schedule Showcase)
+    const scheduledTablet = await Auction.create({
+      sellerId: divya._id,
+      title: 'XP-Pen Deco 01 V2 Graphics Drawing Tablet - Opens Soon',
+      description: '10x6.25 inch drawing tablet with 8192 levels of pressure sensitivity, battery-free stylus, and 8 shortcut keys. Ideal for CAD, digital design, and lecture note-taking.',
+      category: 'Electronics',
+      condition: 'Like New',
+      startingPrice: 1800,
+      minimumBidIncrement: 50,
+      startTime: new Date(now + 4 * 3600 * 1000), // Opens in 4 hours
+      closingAt: new Date(now + 48 * 3600 * 1000), // Closes in 48 hours
+      status: 'scheduled',
+      currentLeadingBid: 0,
+      currentLeadingBidderId: null,
+      bidCount: 0,
+      imageUrls: [
+        'https://images.unsplash.com/photo-1588508065123-287b28e013da?auto=format&fit=crop&w=800&q=80',
+      ],
+    });
+
     // 4. Seed sample notifications for demo evaluation
     await Notification.create([
       {

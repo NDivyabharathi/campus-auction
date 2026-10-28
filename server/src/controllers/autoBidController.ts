@@ -45,6 +45,17 @@ export const enableAutoBid = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    if (
+      auction.status === 'scheduled' ||
+      (auction.startTime && new Date(auction.startTime).getTime() > Date.now())
+    ) {
+      res.status(400).json({
+        success: false,
+        message: 'Automatic bidding cannot be configured before the auction opens.',
+      });
+      return;
+    }
+
     if (auction.status !== 'active') {
       res.status(400).json({
         success: false,
@@ -149,6 +160,17 @@ export const updateAutoBid = async (req: AuthRequest, res: Response): Promise<vo
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       res.status(404).json({ success: false, message: 'Auction listing not found.' });
+      return;
+    }
+
+    if (
+      auction.status === 'scheduled' ||
+      (auction.startTime && new Date(auction.startTime).getTime() > Date.now())
+    ) {
+      res.status(400).json({
+        success: false,
+        message: 'Automatic bidding cannot be updated before the auction opens.',
+      });
       return;
     }
 
