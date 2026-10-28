@@ -3,6 +3,7 @@ import { createApp } from './app.js';
 import { connectDB } from './config/db.js';
 import { ENV } from './config/env.js';
 import { initSocket } from './socket.js';
+import { startAuctionClosureWorker } from './services/auctionClosureService.js';
 
 const startServer = async () => {
   try {
@@ -15,6 +16,9 @@ const startServer = async () => {
 
     // 3. Initialize Socket.IO
     initSocket(server);
+
+    // 4. Start background auction closure worker
+    startAuctionClosureWorker(10000);
 
     // 4. Listen on PORT
     const port = Number(ENV.PORT) || 5000;

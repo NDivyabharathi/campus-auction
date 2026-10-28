@@ -5,6 +5,8 @@ import { Navbar } from './components/Navbar.js';
 import { Footer } from './components/Footer.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
+import { MarketplacePage } from './pages/MarketplacePage.js';
+import { CreateListingPage } from './pages/CreateListingPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 
 export const App: React.FC = () => {
@@ -20,7 +22,7 @@ export const App: React.FC = () => {
               <Route path="/register" element={<RegisterPage />} />
               
               {/* Marketplace & Details (Public to view) */}
-              <Route path="/auctions" element={<div className="p-8 text-center">Marketplace Page Loading...</div>} />
+              <Route path="/auctions" element={<MarketplacePage />} />
               <Route path="/auctions/:id" element={<div className="p-8 text-center">Auction Details Loading...</div>} />
 
               {/* Protected Student Routes */}
@@ -28,7 +30,7 @@ export const App: React.FC = () => {
                 path="/create-listing"
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center">Create Listing Page Loading...</div>
+                    <CreateListingPage />
                   </ProtectedRoute>
                 }
               />
