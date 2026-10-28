@@ -102,6 +102,20 @@ At the end of every semester or academic year, senior students often leave behin
   - `transaction_failed` & `handover_reassigned`: Reassigns item to the second-highest bidder on missed pickup.
 - **Deduplication Engine**: Database-enforced `deduplicationKey` prevents worker restarts or repeated triggers from spamming duplicate alerts.
 
+### 7. Smart AI-Style Shopping Assistant
+- **Floating Assistant Trigger**: Persistent bottom-right floating trigger across all authenticated pages, rendered in Burnt Orange (`#C2410C`) with responsive desktop drawer and mobile sheet.
+- **Natural Language Understanding**: Modular, rule-based natural language parser extracting:
+  - **Campus Categories**: Maps colloquial terms (*"cycle"*, *"scientific calculator"*, *"grewal textbook"*, *"kettle"*, *"mini drafter"*) directly to official schema categories.
+  - **Budget & Price Filters**: Handles Indian rupee formats (*"under ₹2,000"*, *"below 400 rupees"*, *"within 1.5k"*, *"above ₹200"*).
+  - **Condition Filters**: Recognizes *"good condition"*, *"like new"*, and negative filters (*"not heavily used"*).
+  - **Time & Urgency**: Detects *"ending soon"*, *"ending today"*, and negative time bounds (*"not ending in the next ten minutes"*).
+  - **Sorting**: Supports *"cheapest"*, *"highest price"*, *"longest time remaining"*, *"most active"*.
+- **Live MongoDB Queries**: Queries real database records; strictly excludes the user's own listings from recommendations, excludes expired/cancelled listings, and formats verified match explanations.
+- **Conversation Context Retention**: Maintains in-memory session context for follow-up refinements (*"Which one has the longest time remaining?"*, *"Show the cheapest one"*, *"Only show good-condition ones"*).
+- **Safe Bid Recommendations**: Suggests accurate minimum valid next bids (`currentLeadingBid + minimumBidIncrement`, or `startingPrice` for 0 bids).
+- **Strict Manual Confirmation Only**: Directs the student to the official auction details page; **never** places bids automatically.
+- **Zero API Key Dependency**: Runs completely self-contained on the local server without requiring external cloud LLM API keys.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -368,6 +382,9 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - `POST /api/transactions/:id/confirm` — 2-party physical exchange confirmation
 - `POST /api/transactions/:id/fail-and-reassign` — Mark failed pickup & fallback to next bidder
 
+### Assistant (Smart Shopping Assistant)
+- `POST /api/assistant/chat` — Process natural-language student queries, maintain contextual follow-ups, perform safe MongoDB search, and generate manual bid recommendations (protected)
+
 ### Notifications (Real-Time & In-App)
 - `GET /api/notifications` — Retrieve student's alerts (paginated, unread filter support)
 - `GET /api/notifications/unread-count` — Real-time count of unread notifications
@@ -377,11 +394,17 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - **Socket.IO Events**: `notification:new`, `notification:unread_count`
 
 ### Automated Integration Tests
-Run the comprehensive 9-point notification integration suite:
+Run the comprehensive test suites:
 ```bash
+# 1. Notification System Integration Suite (9 tests)
 npx tsx server/src/scripts/testNotifications.ts
+
+# 2. Assistant Natural Language & Database Test Suite (16 tests)
+npx tsx server/src/scripts/testAssistant.ts
+
+# 3. Assistant REST API & Security Test Suite (6 tests)
+npx tsx server/src/scripts/testAssistantApi.ts
 ```
-*(Tests bid notification, outbid alerts, deduplication prevention, unread calculation, mark-read, mark-all-read, user isolation, closure notifications, and dismissal).*
 
 ### Images
 - `POST /api/images/upload` — Upload photos to MongoDB GridFS (JPEG, PNG, WebP $\le$ 5MB)

@@ -119,3 +119,38 @@ export interface AppNotification {
   updatedAt: string;
 }
 
+export interface AssistantItem {
+  id: string;
+  title: string;
+  category: AuctionCategory;
+  condition: ItemCondition;
+  startingPrice: number;
+  currentLeadingBid: number;
+  minimumNextBid: number;
+  bidCount: number;
+  closingAt: string;
+  imageUrl?: string;
+  matchReason: string;
+}
+
+export interface BidRecommendation {
+  auctionId: string;
+  title: string;
+  category: string;
+  startingPrice: number;
+  currentLeadingBid: number;
+  minimumBidIncrement: number;
+  bidCount: number;
+  minimumNextBid: number;
+  explanation: string;
+}
+
+export interface AssistantChatMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  results?: AssistantItem[];
+  bidRecommendation?: BidRecommendation | null;
+  followUpSuggestions?: string[];
+  timestamp: Date;
+}

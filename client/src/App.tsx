@@ -14,6 +14,7 @@ import { MyListingsPage } from './pages/MyListingsPage.js';
 import { MyBidsPage } from './pages/MyBidsPage.js';
 import { NotificationsPage } from './pages/NotificationsPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
+import { AssistantFloatingButton } from './components/AssistantFloatingButton.js';
 
 export const App: React.FC = () => {
   return (
@@ -87,6 +88,7 @@ export const App: React.FC = () => {
               </Routes>
             </main>
             <Footer />
+            <AssistantFloatingButton />
           </div>
         </NotificationProvider>
       </AuthProvider>

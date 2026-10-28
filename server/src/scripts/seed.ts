@@ -242,6 +242,53 @@ export const seedDatabase = async () => {
       attemptNumber: 1,
     });
 
+    // Listing 7: Active Hostel Essential - Bed Desk (Active under ₹500)
+    const desk = await Auction.create({
+      sellerId: rahul._id,
+      title: 'Multi-Purpose Foldable Hostel Bed Desk with Cup Holder',
+      description: 'Solid engineered wood foldable laptop table with tablet groove and cup holder. Great for studying on bed or hostel room floor.',
+      category: 'Hostel Essentials',
+      condition: 'Like New',
+      startingPrice: 320,
+      minimumBidIncrement: 20,
+      closingAt: new Date(now + 3 * 24 * 60 * 60 * 1000), // 3 days
+      status: 'active',
+      currentLeadingBid: 360,
+      currentLeadingBidderId: karthik._id,
+      bidCount: 2,
+      imageUrls: [
+        'https://images.unsplash.com/photo-1541558869434-2840d308329a?auto=format&fit=crop&w=800&q=80',
+      ],
+    });
+
+    await Bid.create([
+      { auctionId: desk._id, bidderId: sneha._id, amount: 320, createdAt: new Date(now - 6 * 3600 * 1000) },
+      { auctionId: desk._id, bidderId: karthik._id, amount: 360, createdAt: new Date(now - 2 * 3600 * 1000) },
+    ]);
+
+    // Listing 8: Second Active Cycle (for comparisons and budget searches)
+    const cycle2 = await Auction.create({
+      sellerId: divya._id,
+      title: 'Hercules Roadeo Hardliner 26T Multi-Speed Bicycle',
+      description: 'Front suspension 21-gear bicycle, dual disc brakes, ideal for riding between campus departments and hostel. Helmet included.',
+      category: 'Cycles and Transportation',
+      condition: 'Good',
+      startingPrice: 1600,
+      minimumBidIncrement: 100,
+      closingAt: new Date(now + 2 * 24 * 60 * 60 * 1000), // 2 days
+      status: 'active',
+      currentLeadingBid: 1700,
+      currentLeadingBidderId: sneha._id,
+      bidCount: 1,
+      imageUrls: [
+        'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=800&q=80',
+      ],
+    });
+
+    await Bid.create([
+      { auctionId: cycle2._id, bidderId: sneha._id, amount: 1700, createdAt: new Date(now - 4 * 3600 * 1000) },
+    ]);
+
     // 4. Seed sample notifications for demo evaluation
     await Notification.create([
       {
