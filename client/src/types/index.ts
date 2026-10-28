@@ -91,6 +91,8 @@ export type NotificationType =
   | 'transaction_completed'
   | 'transaction_failed'
   | 'handover_reassigned'
+  | 'question_asked'
+  | 'answer_received'
   | 'system';
 
 export interface AppNotification {
@@ -154,3 +156,33 @@ export interface AssistantChatMessage {
   followUpSuggestions?: string[];
   timestamp: Date;
 }
+
+export interface QuestionAuthor {
+  _id: string;
+  fullName: string;
+  department?: string;
+  year?: number;
+}
+
+export interface AuctionAnswer {
+  _id: string;
+  authorId: QuestionAuthor;
+  text: string;
+  isSeller: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuctionQuestion {
+  _id: string;
+  auctionId: string;
+  authorId: QuestionAuthor;
+  text: string;
+  answers: AuctionAnswer[];
+  isAuthor: boolean;
+  canEditDelete: boolean;
+  isSeller: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+

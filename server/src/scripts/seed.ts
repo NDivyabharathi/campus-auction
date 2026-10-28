@@ -6,6 +6,7 @@ import { Auction } from '../models/Auction.js';
 import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
 import { Notification } from '../models/Notification.js';
+import { Question } from '../models/Question.js';
 
 const DEMO_PASSWORD = 'kongupassword123';
 
@@ -20,6 +21,7 @@ export const seedDatabase = async () => {
     await Bid.deleteMany({});
     await Transaction.deleteMany({});
     await Notification.deleteMany({});
+    await Question.deleteMany({});
     console.log('[Seed] Cleared existing demo data.');
 
     // 1. Create Student Accounts
@@ -342,7 +344,49 @@ export const seedDatabase = async () => {
       },
     ]);
 
-    console.log('[Seed] Database successfully seeded with 5 Kongu students, 6 varied auctions, bids, transactions, and notifications!');
+    // 5. Seed Questions & Answers for demonstration
+    await Question.create([
+      {
+        auctionId: cycle._id,
+        authorId: rahul._id,
+        text: 'Does the cycle have front and rear brakes in working condition, and can it be inspected during handover?',
+        answers: [
+          {
+            authorId: karthik._id, // Seller
+            text: 'Yes, both front and rear brake pads were replaced last month at Perundurai cycle shop. You are welcome to test ride it during campus handover.',
+            createdAt: new Date(now - 3 * 3600 * 1000),
+          },
+          {
+            authorId: divya._id, // Peer student
+            text: 'Can confirm, Karthik was using it between Kaveri Hostel and Mech block, looks very well maintained.',
+            createdAt: new Date(now - 2 * 3600 * 1000),
+          },
+        ],
+        createdAt: new Date(now - 4 * 3600 * 1000),
+      },
+      {
+        auctionId: cycle._id,
+        authorId: sneha._id,
+        text: 'Is the front basket sturdy enough to carry a heavy engineering laptop bag?',
+        answers: [],
+        createdAt: new Date(now - 30 * 60 * 1000),
+      },
+      {
+        auctionId: calc._id,
+        authorId: priya._id,
+        text: 'Are matrix calculations and numeric integration modes working without any solar display dimming?',
+        answers: [
+          {
+            authorId: divya._id, // Seller
+            text: 'Yes! All ClassWiz functions, matrix mode, and calculus keys operate cleanly under normal room lighting.',
+            createdAt: new Date(now - 5 * 3600 * 1000),
+          },
+        ],
+        createdAt: new Date(now - 6 * 3600 * 1000),
+      },
+    ]);
+
+    console.log('[Seed] Database successfully seeded with 5 Kongu students, 8 varied auctions, bids, transactions, notifications, and Q&A!');
     process.exit(0);
   } catch (error) {
     console.error('[Seed Error] Failed to seed database:', error);

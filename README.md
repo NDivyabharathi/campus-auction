@@ -116,6 +116,18 @@ At the end of every semester or academic year, senior students often leave behin
 - **Strict Manual Confirmation Only**: Directs the student to the official auction details page; **never** places bids automatically.
 - **Zero API Key Dependency**: Runs completely self-contained on the local server without requiring external cloud LLM API keys.
 
+### 8. Questions Before Bidding (Public Q&A)
+- **Pre-Bid Clarifications**: Students can ask questions directly on auction listings to verify physical condition, wear, included accessories, or handover spots before committing a bid.
+- **Role Badges**: Answers clearly distinguish between verified **Seller Answers** (`#C2410C` badge) and peer **Student Answers** (`#78716C` badge).
+- **Discussion Integrity Rules**:
+  - As long as a question has no answers, its author can edit or delete it.
+  - As soon as an answer is submitted, the question is permanently locked against edits and deletions to preserve discussion integrity.
+  - Other students cannot edit or delete another student's question.
+- **Auction Lifecycle Protection**: When an auction ends, all questions and answers remain visible as an immutable public record, but new submissions are rejected.
+- **Spam Protections & Rate Limits**: Server-side rate limits (max 5 questions/min, max 10 answers/min), 500-character question limit, 1000-character answer limit, and strict whitespace trimming.
+- **Notification Integration**: Sellers are automatically notified via Socket.IO and the notification center when questions are asked, and students are notified when answers are posted.
+- **Live WebSockets**: Instant updates on `new_question`, `new_answer`, `question_updated`, and `question_deleted`.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -393,6 +405,13 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - `DELETE /api/notifications/:id` — Dismiss/remove notification
 - **Socket.IO Events**: `notification:new`, `notification:unread_count`
 
+### Questions & Answers (Pre-Bid Discussions)
+- `GET /api/auctions/:auctionId/questions` — Public discussions with populated author roles and timestamps
+- `POST /api/auctions/:auctionId/questions` — Submit public question on active auction (protected)
+- `PATCH /api/questions/:questionId` — Edit question (author only, locked once answered)
+- `DELETE /api/questions/:questionId` — Delete question (author only, locked once answered)
+- `POST /api/questions/:questionId/answers` — Post seller/student answer (protected)
+
 ### Automated Integration Tests
 Run the comprehensive test suites:
 ```bash
@@ -404,6 +423,9 @@ npx tsx server/src/scripts/testAssistant.ts
 
 # 3. Assistant REST API & Security Test Suite (6 tests)
 npx tsx server/src/scripts/testAssistantApi.ts
+
+# 4. Questions & Answers Discussion Suite (17 tests)
+npx tsx server/src/scripts/testQuestions.ts
 ```
 
 ### Images

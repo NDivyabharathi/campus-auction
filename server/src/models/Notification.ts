@@ -13,6 +13,8 @@ export type NotificationType =
   | 'transaction_completed'
   | 'transaction_failed'
   | 'handover_reassigned'
+  | 'question_asked'
+  | 'answer_received'
   | 'system';
 
 export interface INotification extends Document {
@@ -54,6 +56,8 @@ const notificationSchema = new Schema<INotification>(
         'transaction_completed',
         'transaction_failed',
         'handover_reassigned',
+        'question_asked',
+        'answer_received',
         'system',
       ],
       index: true,

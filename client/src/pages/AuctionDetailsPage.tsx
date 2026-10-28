@@ -17,6 +17,7 @@ import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import type { Auction, Bid } from '../types/index.js';
 import { formatPrice, formatTimeRemaining, formatDate } from '../utils/formatters.js';
+import { AuctionQuestionsSection } from '../components/AuctionQuestionsSection.js';
 
 export const AuctionDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -358,6 +359,13 @@ export const AuctionDetailsPage: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* Public Questions & Answers Section */}
+          <AuctionQuestionsSection
+            auctionId={auction._id}
+            isClosed={auction.status !== 'active' || timeRemaining.isEnded}
+            sellerId={typeof auction.sellerId === 'string' ? auction.sellerId : auction.sellerId._id}
+          />
         </div>
 
         {/* Right Column: Pricing, Live Countdown & Bid Form (5 cols) */}

@@ -74,7 +74,7 @@ async function runApiTests() {
       headers: authHeaders,
       body: JSON.stringify({ message: 'Find a cycle under ₹2,000' }),
     });
-    const searchBody = await searchRes.json();
+    const searchBody: any = await searchRes.json();
 
     assert(
       'Test 3: Search query returns 200 with results and suggestions',
@@ -99,7 +99,7 @@ async function runApiTests() {
         },
       }),
     });
-    const followUpBody = await followUpRes.json();
+    const followUpBody: any = await followUpRes.json();
 
     assert(
       'Test 4: Follow-up query maintains context and returns refined items',
@@ -115,7 +115,7 @@ async function runApiTests() {
       headers: authHeaders,
       body: JSON.stringify({ message: 'Suggest a bid for this calculator' }),
     });
-    const bidBody = await bidRes.json();
+    const bidBody: any = await bidRes.json();
 
     assert(
       'Test 5: Bid suggestion request returns recommendation object with minNextBid and explanation',

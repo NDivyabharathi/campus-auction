@@ -8,7 +8,8 @@ import {
   getMyListings,
 } from '../controllers/auctionController.js';
 import { placeBid, getAuctionBids } from '../controllers/bidController.js';
-import { authenticate } from '../middleware/auth.js';
+import { getAuctionQuestions, createQuestion } from '../controllers/questionController.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -23,6 +24,12 @@ router.get('/:id', getAuctionById);
 
 // Public bid history of an auction
 router.get('/:id/bids', getAuctionBids);
+
+// Public Questions & Answers of an auction
+router.get('/:auctionId/questions', optionalAuth, getAuctionQuestions);
+
+// Submit Question on an auction
+router.post('/:auctionId/questions', authenticate, createQuestion);
 
 // Place bid on an auction
 router.post('/:id/bids', authenticate, placeBid);
