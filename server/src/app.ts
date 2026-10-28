@@ -5,6 +5,7 @@ import { ENV } from './config/env.js';
 import authRoutes from './routes/authRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import auctionRoutes from './routes/auctionRoutes.js';
+import bidRoutes from './routes/bidRoutes.js';
 
 export const createApp = () => {
   const app = express();
@@ -38,6 +39,7 @@ export const createApp = () => {
   app.use('/api/auth', authRoutes);
   app.use('/api/images', imageRoutes);
   app.use('/api/auctions', auctionRoutes);
+  app.use('/api/bids', bidRoutes);
 
   // 404 Not Found
   app.use((_req: Request, res: Response) => {

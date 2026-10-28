@@ -7,6 +7,7 @@ import {
   cancelAuction,
   getMyListings,
 } from '../controllers/auctionController.js';
+import { placeBid, getAuctionBids } from '../controllers/bidController.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -19,6 +20,12 @@ router.get('/my-listings', authenticate, getMyListings);
 
 // Get single auction details
 router.get('/:id', getAuctionById);
+
+// Public bid history of an auction
+router.get('/:id/bids', getAuctionBids);
+
+// Place bid on an auction
+router.post('/:id/bids', authenticate, placeBid);
 
 // Create new auction listing
 router.post('/', authenticate, createAuction);

@@ -7,6 +7,7 @@ import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
 import { MarketplacePage } from './pages/MarketplacePage.js';
 import { CreateListingPage } from './pages/CreateListingPage.js';
+import { AuctionDetailsPage } from './pages/AuctionDetailsPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 
 export const App: React.FC = () => {
@@ -23,7 +24,7 @@ export const App: React.FC = () => {
               
               {/* Marketplace & Details (Public to view) */}
               <Route path="/auctions" element={<MarketplacePage />} />
-              <Route path="/auctions/:id" element={<div className="p-8 text-center">Auction Details Loading...</div>} />
+              <Route path="/auctions/:id" element={<AuctionDetailsPage />} />
 
               {/* Protected Student Routes */}
               <Route
