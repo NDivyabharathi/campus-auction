@@ -31,3 +31,4 @@ export const AssistantSuggestionChips: React.FC<AssistantSuggestionChipsProps> =
     </div>
   );
 };
+

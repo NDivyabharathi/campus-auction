@@ -8,3 +8,4 @@ const router = Router();
 router.post('/chat', authenticate, handleAssistantChat);
 
 export default router;
+
