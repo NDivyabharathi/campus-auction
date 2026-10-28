@@ -9,6 +9,8 @@ import { MarketplacePage } from './pages/MarketplacePage.js';
 import { CreateListingPage } from './pages/CreateListingPage.js';
 import { AuctionDetailsPage } from './pages/AuctionDetailsPage.js';
 import { TransactionsPage } from './pages/TransactionsPage.js';
+import { MyListingsPage } from './pages/MyListingsPage.js';
+import { MyBidsPage } from './pages/MyBidsPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 
 export const App: React.FC = () => {
@@ -40,7 +42,7 @@ export const App: React.FC = () => {
                 path="/my-listings"
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center">My Listings Page Loading...</div>
+                    <MyListingsPage />
                   </ProtectedRoute>
                 }
               />
@@ -48,7 +50,7 @@ export const App: React.FC = () => {
                 path="/my-bids"
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center">My Bids Page Loading...</div>
+                    <MyBidsPage />
                   </ProtectedRoute>
                 }
               />
