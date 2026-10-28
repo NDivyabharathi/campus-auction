@@ -57,3 +57,4 @@ wantMatchSchema.index({ want: 1, listing: 1 }, { unique: true });
 wantMatchSchema.index({ student: 1, matchedAt: -1 });
 
 export const WantMatch = mongoose.model<IWantMatch>('WantMatch', wantMatchSchema);
+

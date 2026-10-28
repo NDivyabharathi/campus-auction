@@ -87,3 +87,4 @@ wantSchema.index({ status: 1, expiresAt: 1 });
 wantSchema.index({ student: 1, createdAt: -1 });
 
 export const Want = mongoose.model<IWant>('Want', wantSchema);
+

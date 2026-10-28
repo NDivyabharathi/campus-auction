@@ -468,17 +468,26 @@ export const seedDatabase = async () => {
       matchedAt: new Date(now - 6 * 3600 * 1000),
     });
 
+    const karthikWant = await Want.create({
+      student: karthik._id,
+      keywords: 'hostel bed desk',
+      category: 'Hostel Essentials',
+      maxPrice: 400,
+      status: 'FULFILLED',
+      matchCount: 1,
+      expiresAt: new Date(now + 20 * 24 * 3600 * 1000),
+      fulfilledAt: new Date(now - 2 * 24 * 3600 * 1000),
+    });
+
+    await WantMatch.create({
+      want: karthikWant._id,
+      listing: desk._id,
+      student: karthik._id,
+      matchReason: 'Matched keywords "hostel bed desk" • Category: Hostel Essentials • Starting price ₹320 ≤ ₹400',
+      matchedAt: new Date(now - 3 * 24 * 3600 * 1000),
+    });
+
     await Want.create([
-      {
-        student: karthik._id,
-        keywords: 'hostel bed desk',
-        category: 'Hostel Essentials',
-        maxPrice: 400,
-        status: 'FULFILLED',
-        matchCount: 1,
-        expiresAt: new Date(now + 20 * 24 * 3600 * 1000),
-        fulfilledAt: new Date(now - 2 * 24 * 3600 * 1000),
-      },
       {
         student: divya._id,
         keywords: 'lab multimeter kit',
