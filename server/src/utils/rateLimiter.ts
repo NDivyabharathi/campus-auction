@@ -55,3 +55,4 @@ export function checkRateLimit(
 export const QUESTION_RATE_LIMIT = 5; // 5 questions per minute
 export const ANSWER_RATE_LIMIT = 10;  // 10 answers per minute
 export const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+

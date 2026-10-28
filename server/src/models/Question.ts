@@ -67,3 +67,4 @@ const questionSchema = new Schema<IQuestion>(
 questionSchema.index({ auctionId: 1, createdAt: -1 });
 
 export const Question = mongoose.model<IQuestion>('Question', questionSchema);
+
