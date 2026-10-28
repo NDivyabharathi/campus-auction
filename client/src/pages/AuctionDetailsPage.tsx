@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import {
@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Sparkles,
   Trophy,
+  Zap,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -35,6 +36,8 @@ export const AuctionDetailsPage: React.FC = () => {
   const [bidFeedback, setBidFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [timeRemaining, setTimeRemaining] = useState({ text: '', isEnded: false, isUrgent: false });
+  const [extensionAlert, setExtensionAlert] = useState<string | null>(null);
+  const extensionTimerRef = useRef<any>(null);
 
   // 1. Fetch Auction details and Bid history
   const loadAuctionData = async () => {
@@ -98,6 +101,21 @@ export const AuctionDetailsPage: React.FC = () => {
 
       socket.emit('join_auction', id);
 
+      const handleAuctionExtended = (data: any) => {
+        if (data.auctionId === id && data.newClosingTime) {
+          setAuction((prev) => (prev ? { ...prev, closingAt: data.newClosingTime } : null));
+          setTimeRemaining(formatTimeRemaining(data.newClosingTime));
+          setExtensionAlert('Last-minute bid! Auction extended by 60 seconds.');
+          if (extensionTimerRef.current) clearTimeout(extensionTimerRef.current);
+          extensionTimerRef.current = setTimeout(() => {
+            setExtensionAlert(null);
+          }, 8000);
+        }
+      };
+
+      socket.on('auction:extended', handleAuctionExtended);
+      socket.on('auction_extended', handleAuctionExtended);
+
       socket.on('new_bid', (data: any) => {
         if (data.auctionId === id) {
           setAuction((prev) => {
@@ -107,8 +125,19 @@ export const AuctionDetailsPage: React.FC = () => {
               currentLeadingBid: data.currentLeadingBid,
               bidCount: data.bidCount,
               currentLeadingBidderId: data.bid?.bidderId,
+              ...(data.closingAt ? { closingAt: data.closingAt } : {}),
             };
           });
+          if (data.closingAt) {
+            setTimeRemaining(formatTimeRemaining(data.closingAt));
+          }
+          if (data.isExtended) {
+            setExtensionAlert('Last-minute bid! Auction extended by 60 seconds.');
+            if (extensionTimerRef.current) clearTimeout(extensionTimerRef.current);
+            extensionTimerRef.current = setTimeout(() => {
+              setExtensionAlert(null);
+            }, 8000);
+          }
           setMinAcceptableBid(data.minAcceptableBid);
           setBidInput(data.minAcceptableBid);
           if (data.bid) {
@@ -127,6 +156,9 @@ export const AuctionDetailsPage: React.FC = () => {
     }
 
     return () => {
+      if (extensionTimerRef.current) {
+        clearTimeout(extensionTimerRef.current);
+      }
       if (socket) {
         socket.emit('leave_auction', id);
         socket.disconnect();
@@ -174,13 +206,25 @@ export const AuctionDetailsPage: React.FC = () => {
         if (res.data.bid) {
           setBids((prev) => [res.data.bid, ...prev.filter((b) => b._id !== res.data.bid._id)]);
         }
-        if (auction) {
+        if (auction && res.data.auction) {
+          const updatedClosing = res.data.auction.closingAt || auction.closingAt;
           setAuction({
             ...auction,
             currentLeadingBid: res.data.auction.currentLeadingBid,
             bidCount: res.data.auction.bidCount,
             currentLeadingBidderId: user,
+            closingAt: updatedClosing,
           });
+          if (res.data.auction.closingAt) {
+            setTimeRemaining(formatTimeRemaining(res.data.auction.closingAt));
+          }
+          if (res.data.auction.isExtended) {
+            setExtensionAlert('Last-minute bid! Auction extended by 60 seconds.');
+            if (extensionTimerRef.current) clearTimeout(extensionTimerRef.current);
+            extensionTimerRef.current = setTimeout(() => {
+              setExtensionAlert(null);
+            }, 8000);
+          }
         }
       } else {
         setBidFeedback({
@@ -240,6 +284,11 @@ export const AuctionDetailsPage: React.FC = () => {
   const isSeller = user && (user._id === sellerObj?._id || user._id === sellerObj);
   const isClosed = auction.status !== 'active' || timeRemaining.isEnded;
   const hasLeadingBid = auction.bidCount > 0 && auction.currentLeadingBid > 0;
+  const remainingSeconds = auction?.closingAt
+    ? (new Date(auction.closingAt).getTime() - Date.now()) / 1000
+    : 0;
+  const isUnder30Seconds =
+    !isClosed && auction.status === 'active' && remainingSeconds > 0 && remainingSeconds <= 30;
 
   const fallbackImage =
     'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80';
@@ -432,6 +481,22 @@ export const AuctionDetailsPage: React.FC = () => {
                 Closing: {formatDate(auction.closingAt)}
               </div>
             </div>
+
+            {/* Anti-Sniping Alert Banner: Extension Occurred */}
+            {extensionAlert && (
+              <div className="p-3.5 rounded-2xl bg-orange-50 border-2 border-[#C2410C] text-[#C2410C] shadow-xs text-xs font-bold flex items-center justify-center gap-2 animate-in fade-in zoom-in-95 duration-200">
+                <Clock className="w-4 h-4 shrink-0 animate-spin" />
+                <span>⏱️ Last-minute bid! Auction extended by 60 seconds.</span>
+              </div>
+            )}
+
+            {/* Anti-Sniping Warning Banner: Ending in <= 30 seconds */}
+            {!isClosed && isUnder30Seconds && !extensionAlert && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center justify-center gap-2 animate-pulse shadow-2xs">
+                <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>⚡ Ending soon — valid bids may extend this auction.</span>
+              </div>
+            )}
 
             {/* Outcome Display if Closed */}
             {isClosed ? (

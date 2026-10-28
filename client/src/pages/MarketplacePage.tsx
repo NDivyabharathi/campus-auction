@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import {
   Search,
   SlidersHorizontal,
@@ -67,6 +68,44 @@ export const MarketplacePage: React.FC = () => {
   useEffect(() => {
     fetchAuctions();
   }, [selectedCategory, selectedCondition, statusFilter, sortBy]);
+
+  // Real-time updates for marketplace cards (extensions, new bids, closures)
+  useEffect(() => {
+    const socket = io(window.location.origin, {
+      withCredentials: true,
+    });
+
+    socket.on('marketplace_update', ({ auctionId, event, data }: any) => {
+      if (event === 'auction:extended' || event === 'auction_extended') {
+        setAuctions((prev) =>
+          prev.map((auc) =>
+            auc._id === auctionId ? { ...auc, closingAt: data.newClosingTime } : auc
+          )
+        );
+      } else if (event === 'new_bid') {
+        setAuctions((prev) =>
+          prev.map((auc) =>
+            auc._id === auctionId
+              ? {
+                  ...auc,
+                  currentLeadingBid: data.currentLeadingBid,
+                  bidCount: data.bidCount,
+                  ...(data.closingAt ? { closingAt: data.closingAt } : {}),
+                }
+              : auc
+          )
+        );
+      } else if (event === 'auction_ended') {
+        setAuctions((prev) =>
+          prev.map((auc) => (auc._id === auctionId ? { ...auc, status: data.status } : auc))
+        );
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

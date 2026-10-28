@@ -16,15 +16,35 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       return auction;
     }
 
+    const now = new Date();
+    // Anti-Sniping Protection: if auction was extended into the future by a last-minute bid, abort closure
+    if (new Date(auction.closingAt).getTime() > now.getTime()) {
+      return auction;
+    }
+
     // Find highest valid bid
     const highestBid = await Bid.findOne({ auctionId: auction._id })
       .sort({ amount: -1, createdAt: 1 })
       .populate('bidderId', 'fullName email department year');
 
     if (!highestBid) {
-      // No bids placed -> Mark unsold
-      auction.status = 'unsold';
-      await auction.save();
+      // No bids placed -> Atomically mark unsold if still expired and active
+      const updated = await Auction.findOneAndUpdate(
+        {
+          _id: auction._id,
+          status: 'active',
+          closingAt: { $lte: now },
+        },
+        {
+          $set: { status: 'unsold' },
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        // Auction was extended or closed concurrently
+        return auction;
+      }
 
       broadcastAuctionUpdate(auction._id.toString(), 'auction_ended', {
         auctionId: auction._id,
@@ -42,17 +62,33 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
         deduplicationKey: `auction_unsold_${auction._id}`,
       });
 
-      return auction;
+      return updated;
     }
 
-    // Has winning bidder -> Reserve item
-    auction.status = 'reserved';
-    auction.currentLeadingBid = highestBid.amount;
-    auction.currentLeadingBidderId = highestBid.bidderId as any;
-    await auction.save();
-
+    // Has winning bidder -> Atomically reserve item if still expired and active
     const winnerId = ((highestBid.bidderId as any)._id || highestBid.bidderId).toString();
     const winnerName = (highestBid.bidderId as any).fullName || 'Kongu Student';
+
+    const updated = await Auction.findOneAndUpdate(
+      {
+        _id: auction._id,
+        status: 'active',
+        closingAt: { $lte: now },
+      },
+      {
+        $set: {
+          status: 'reserved',
+          currentLeadingBid: highestBid.amount,
+          currentLeadingBidderId: new mongoose.Types.ObjectId(winnerId),
+        },
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      // Auction was extended or closed concurrently
+      return auction;
+    }
 
     // Idempotently check for existing transaction
     let transaction = await Transaction.findOne({
@@ -136,7 +172,7 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       console.error('[Auction Closure] Error notifying other bidders:', err);
     }
 
-    return auction;
+    return updated;
   } catch (error) {
     console.error(`[Auction Closure Error] Failed to close auction ${auctionId}:`, error);
     return null;

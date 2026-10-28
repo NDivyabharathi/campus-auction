@@ -146,6 +146,25 @@ At the end of every semester or academic year, senior students often leave behin
 - **Grouped Match Viewer**: Dedicated modal displaying grouped matching listings with photo thumbnails, current bids, countdowns, and transparent match reasons (*"Matched keywords 'scientific calculator' • Category: Electronics • Starting price ₹300 ≤ ₹400"*).
 - **Anti-Spam & Idempotency**: Compound unique index `{ want: 1, listing: 1 }` on `WantMatch` prevents duplicate alerts across background checks, retries, and renewals.
 
+### 10. Last-Minute Auction Extensions (Anti-Sniping Engine)
+- **Automatic Extension Boundary**: Uses the authoritative server clock to compute remaining time:
+  $$\text{remainingMs} = \text{closingAt} - \text{serverCurrentTime}$$
+  If $0 < \text{remainingMs} \le 30,000\text{ ms}$ ($\le 30$ seconds remaining) when a valid bid is accepted, the auction is extended by exactly 60 seconds after the accepted bid:
+  $$\text{newClosingTime} = \text{acceptedBidTime} + 60,000\text{ ms}$$
+- **Atomic Concurrency Guarantee**:
+  - The extension is committed atomically in the same MongoDB conditional update (`findOneAndUpdate`) as the leading bid and incremented count.
+  - Prevents race conditions between concurrent competing bidders and ensures newer deadlines are never overwritten by older ones.
+- **Closure Race Condition Prevention**:
+  - The background closure worker verifies `closingAt: { $lte: new Date() }` atomically before closing an auction.
+  - If a last-minute bid extends the auction, the worker detects the extension and skips closure, preventing premature reservations or false winner determinations.
+- **Real-Time Multi-Channel Broadcast**:
+  - Emits `auction:extended` to the active auction room (`auction:${auctionId}`) and globally via `marketplace_update`.
+  - Also incorporates `closingAt` and `isExtended: true` directly into the `new_bid` event payload.
+- **Frontend Live Micro-Interactions**:
+  - Shows warning banner: **"⚡ Ending soon — valid bids may extend this auction."** during the final 30 seconds.
+  - Shows extension alert: **"⏱️ Last-minute bid! Auction extended by 60 seconds."** immediately on extension.
+  - Automatically updates countdown timers on both `AuctionDetailsPage` and marketplace cards without requiring a page refresh.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -457,6 +476,9 @@ npx tsx server/src/scripts/testQuestions.ts
 
 # 5. Saved Wants & Smart Alerts Test Suite (20 tests)
 npx tsx server/src/scripts/testWants.ts
+
+# 6. Anti-Sniping & Last-Minute Extensions Suite (12 tests)
+npx tsx server/src/scripts/testAntiSniping.ts
 ```
 
 ### Images
