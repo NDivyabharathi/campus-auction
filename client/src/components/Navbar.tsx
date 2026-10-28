@@ -37,19 +37,19 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E7E0D8] shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-[#C2410C] flex items-center justify-center text-white shadow-md shadow-[#C2410C]/20 group-hover:bg-[#9A3412] transition-colors duration-200">
               <Gavel className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-                Campus<span className="text-indigo-600">Auction</span>
+              <span className="text-xl font-bold tracking-tight text-[#292524] group-hover:text-[#C2410C] transition-colors">
+                Campus<span className="text-[#C2410C]">Auction</span>
               </span>
-              <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-700 rounded-md border border-indigo-100">
+              <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#FFEDD5] text-[#C2410C] rounded-md border border-[#FED7AA]">
                 Kongu Only
               </span>
             </div>
@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className="ml-2 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-xs shadow-indigo-200 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                    className="ml-2 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold bg-[#C2410C] text-white hover:bg-[#9A3412] shadow-xs shadow-[#C2410C]/25 transition-all hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Icon className="w-4 h-4" />
                     <span>{item.name}</span>
@@ -79,10 +79,10 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
                     active
-                      ? 'text-indigo-600 bg-indigo-50/80 font-semibold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                      ? 'text-[#C2410C] bg-[#FFEDD5]/70 font-semibold'
+                      : 'text-[#78716C] hover:text-[#292524] hover:bg-[#FFFBF5]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -95,22 +95,22 @@ export const Navbar: React.FC = () => {
           {/* Right Section: Auth & Profile */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+              <div className="flex items-center gap-3 pl-3 border-l border-[#E7E0D8]">
                 <div className="text-right">
-                  <div className="text-xs font-bold text-slate-800 leading-tight">
+                  <div className="text-xs font-bold text-[#292524] leading-tight">
                     {user.fullName}
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono">
+                  <div className="text-[11px] text-[#78716C] font-mono">
                     {user.department ? `${user.department} • ` : ''}Kongu
                   </div>
                 </div>
-                <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-semibold text-sm">
+                <div className="w-9 h-9 rounded-full bg-[#FFEDD5] border border-[#FED7AA] flex items-center justify-center text-[#C2410C] font-bold text-sm">
                   {user.fullName.charAt(0).toUpperCase()}
                 </div>
                 <button
                   onClick={handleLogout}
                   title="Log out"
-                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  className="p-2 text-[#78716C] hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -119,13 +119,13 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  className="px-3.5 py-2 rounded-xl text-sm font-medium text-[#78716C] hover:text-[#292524] hover:bg-[#FFFBF5] transition-colors"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-xs"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#292524] text-white hover:bg-[#1C1917] transition-colors shadow-xs"
                 >
                   Register
                 </Link>
@@ -137,7 +137,7 @@ export const Navbar: React.FC = () => {
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              className="p-2 rounded-lg text-[#78716C] hover:text-[#292524] hover:bg-[#FFFBF5]"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -148,15 +148,15 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2">
+        <div className="md:hidden border-t border-[#E7E0D8] bg-white px-4 pt-3 pb-5 space-y-2">
           {user && (
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-3 border border-slate-100">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-base">
+            <div className="flex items-center gap-3 p-3 bg-[#FFFBF5] rounded-xl mb-3 border border-[#E7E0D8]">
+              <div className="w-10 h-10 rounded-full bg-[#FFEDD5] text-[#C2410C] font-bold flex items-center justify-center text-base">
                 {user.fullName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-slate-800 truncate">{user.fullName}</div>
-                <div className="text-xs text-slate-500 font-mono truncate">{user.email}</div>
+                <div className="text-sm font-bold text-[#292524] truncate">{user.fullName}</div>
+                <div className="text-xs text-[#78716C] font-mono truncate">{user.email}</div>
               </div>
             </div>
           )}
@@ -171,12 +171,12 @@ export const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
                   item.highlight
-                    ? 'bg-indigo-600 text-white font-semibold'
+                    ? 'bg-[#C2410C] text-white font-semibold'
                     : active
-                    ? 'text-indigo-600 bg-indigo-50 font-semibold'
-                    : 'text-slate-700 hover:bg-slate-50'
+                    ? 'text-[#C2410C] bg-[#FFEDD5]/70 font-semibold'
+                    : 'text-[#78716C] hover:bg-[#FFFBF5]'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -185,14 +185,14 @@ export const Navbar: React.FC = () => {
             );
           })}
 
-          <div className="pt-3 border-t border-slate-100">
+          <div className="pt-3 border-t border-[#E7E0D8]">
             {user ? (
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sign Out</span>
@@ -202,14 +202,14 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-sm font-medium border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50"
+                  className="w-full py-2.5 text-center text-sm font-medium border border-[#E7E0D8] rounded-xl text-[#292524] hover:bg-[#FFFBF5]"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  className="w-full py-2.5 text-center text-sm font-semibold bg-[#C2410C] text-white rounded-xl hover:bg-[#9A3412]"
                 >
                   Register
                 </Link>

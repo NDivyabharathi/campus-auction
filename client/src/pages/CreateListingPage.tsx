@@ -157,30 +157,30 @@ export const CreateListingPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-extrabold text-[#292524] tracking-tight">
           Publish an Auction Item
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          List your pre-loved textbooks, electronics, cycles, or hostel essentials for fair bidding.
+        <p className="mt-1 text-sm text-[#78716C]">
+          List your pre-loved textbooks, electronics, cycles, or hostel essentials for fair campus bidding.
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-3">
+        <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-3">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E0D8] shadow-sm">
         {/* Section 1: Basic Info */}
         <div className="space-y-4">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <h2 className="text-base font-bold text-[#292524] flex items-center gap-2 border-b border-[#E7E0D8] pb-2">
             <span>1. Item Information</span>
           </h2>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
               Item Title *
             </label>
             <input
@@ -190,19 +190,19 @@ export const CreateListingPage: React.FC = () => {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Casio fx-991EX ClassWiz Scientific Calculator"
               maxLength={100}
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
                 Category *
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -213,13 +213,13 @@ export const CreateListingPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
                 Condition *
               </label>
               <select
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
               >
                 {CONDITIONS.map((cond) => (
                   <option key={cond} value={cond}>
@@ -231,7 +231,7 @@ export const CreateListingPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
               Detailed Description *
             </label>
             <textarea
@@ -241,9 +241,9 @@ export const CreateListingPage: React.FC = () => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the usage duration, condition, what accessories are included, and any minor flaws..."
               maxLength={2000}
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524] leading-relaxed"
             />
-            <div className="text-right text-[11px] text-slate-400">
+            <div className="text-right text-[11px] text-[#78716C]">
               {description.length}/2000 characters
             </div>
           </div>
@@ -251,21 +251,21 @@ export const CreateListingPage: React.FC = () => {
 
         {/* Section 2: Photos */}
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <h2 className="text-base font-bold text-[#292524] flex items-center gap-2 border-b border-[#E7E0D8] pb-2">
             <span>2. Photos (Up to 5 images)</span>
           </h2>
-          <p className="text-xs text-slate-500">
-            Upload clear photos taken in good lighting. Stored securely in campus MongoDB.
+          <p className="text-xs text-[#78716C]">
+            Upload clear photos taken in good lighting. Stored securely in campus MongoDB GridFS.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 pt-2">
             {imagePreviews.map((preview, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group">
+              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[#E7E0D8] group">
                 <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
-                  className="absolute top-1.5 right-1.5 p-1 bg-slate-900/80 text-white rounded-full hover:bg-rose-600 transition-colors"
+                  className="absolute top-1.5 right-1.5 p-1 bg-[#1C1917]/80 text-white rounded-full hover:bg-rose-600 transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -273,10 +273,10 @@ export const CreateListingPage: React.FC = () => {
             ))}
 
             {imagePreviews.length < 5 && (
-              <label className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/30 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center">
-                <UploadCloud className="w-6 h-6 text-slate-400" />
-                <span className="mt-1 text-[11px] font-semibold text-slate-600">Add Photo</span>
-                <span className="text-[9px] text-slate-400">Max 5MB</span>
+              <label className="aspect-square rounded-xl border-2 border-dashed border-[#E7E0D8] hover:border-[#C2410C] hover:bg-[#FFEDD5]/30 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center">
+                <UploadCloud className="w-6 h-6 text-[#78716C]" />
+                <span className="mt-1 text-[11px] font-semibold text-[#292524]">Add Photo</span>
+                <span className="text-[9px] text-[#78716C]">Max 5MB</span>
                 <input
                   type="file"
                   multiple
@@ -291,17 +291,17 @@ export const CreateListingPage: React.FC = () => {
 
         {/* Section 3: Bidding & Auction Timing */}
         <div className="space-y-4">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <h2 className="text-base font-bold text-[#292524] flex items-center gap-2 border-b border-[#E7E0D8] pb-2">
             <span>3. Auction Pricing & Deadline</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
                 Starting Price (₹) *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
                   <IndianRupee className="w-4 h-4" />
                 </div>
                 <input
@@ -311,18 +311,18 @@ export const CreateListingPage: React.FC = () => {
                   value={startingPrice}
                   onChange={(e) => setStartingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="250"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] font-semibold text-[#292524]"
                 />
               </div>
-              <p className="mt-1 text-[11px] text-slate-400">The lowest acceptable initial bid amount.</p>
+              <p className="mt-1 text-[11px] text-[#78716C]">The lowest acceptable initial bid amount.</p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
                 Minimum Bid Increment (₹) *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
                   <IndianRupee className="w-4 h-4" />
                 </div>
                 <input
@@ -334,19 +334,19 @@ export const CreateListingPage: React.FC = () => {
                     setMinimumBidIncrement(e.target.value === '' ? '' : Number(e.target.value))
                   }
                   placeholder="20"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] font-semibold text-[#292524]"
                 />
               </div>
-              <p className="mt-1 text-[11px] text-slate-400">Every next bid must increase by at least this amount.</p>
+              <p className="mt-1 text-[11px] text-[#78716C]">Every next bid must increase by at least this amount.</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
               Auction Closing Date & Time *
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
                 <Clock className="w-4 h-4" />
               </div>
               <input
@@ -354,31 +354,31 @@ export const CreateListingPage: React.FC = () => {
                 required
                 value={closingAt}
                 onChange={(e) => setClosingAt(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
               />
             </div>
 
             {/* Quick preset buttons */}
             <div className="mt-2.5 flex items-center gap-2">
-              <span className="text-xs text-slate-400">Quick Presets:</span>
+              <span className="text-xs text-[#78716C]">Quick Presets:</span>
               <button
                 type="button"
                 onClick={() => setDurationPreset(1)}
-                className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-600 transition-colors"
+                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
               >
                 +1 Day
               </button>
               <button
                 type="button"
                 onClick={() => setDurationPreset(3)}
-                className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-600 transition-colors"
+                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
               >
                 +3 Days
               </button>
               <button
                 type="button"
                 onClick={() => setDurationPreset(7)}
-                className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-600 transition-colors"
+                className="px-2.5 py-1 text-xs font-semibold bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] rounded-lg text-[#292524] transition-colors"
               >
                 +7 Days (1 Week)
               </button>
@@ -387,8 +387,8 @@ export const CreateListingPage: React.FC = () => {
         </div>
 
         {/* Fairness policy reminder */}
-        <div className="p-4 bg-indigo-50/70 border border-indigo-100 rounded-xl flex items-start gap-3 text-xs text-indigo-900">
-          <Info className="w-4 h-4 shrink-0 text-indigo-600 mt-0.5" />
+        <div className="p-4 bg-[#FFEDD5]/60 border border-[#FED7AA] rounded-2xl flex items-start gap-3 text-xs text-[#9A3412]">
+          <Info className="w-4 h-4 shrink-0 text-[#C2410C] mt-0.5" />
           <p className="leading-relaxed">
             <span className="font-bold">Campus Fairness Rule:</span> Once your listing receives its first valid bid, 
             the starting price, bid increment, and closing time cannot be altered or cancelled.
@@ -399,14 +399,14 @@ export const CreateListingPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/auctions')}
-            className="px-5 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800"
+            className="px-5 py-2.5 text-sm font-semibold text-[#78716C] hover:text-[#292524] transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100 disabled:opacity-70 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-[#C2410C] hover:bg-[#9A3412] shadow-md shadow-[#C2410C]/20 disabled:opacity-70 transition-all cursor-pointer"
           >
             {submitting ? (
               <>

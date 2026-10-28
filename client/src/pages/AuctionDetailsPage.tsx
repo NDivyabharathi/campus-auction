@@ -80,7 +80,6 @@ export const AuctionDetailsPage: React.FC = () => {
       const remaining = formatTimeRemaining(auction.closingAt);
       setTimeRemaining(remaining);
       if (remaining.isEnded && auction.status === 'active') {
-        // Refresh to get finalized status
         loadAuctionData();
       }
     }, 1000);
@@ -167,7 +166,6 @@ export const AuctionDetailsPage: React.FC = () => {
           message: res.data.message || 'Bid successfully recorded!',
         });
 
-        // Update local state
         if (res.data.auction) {
           setMinAcceptableBid(res.data.auction.minAcceptableBid);
           setBidInput(res.data.auction.minAcceptableBid);
@@ -212,8 +210,8 @@ export const AuctionDetailsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-sm font-semibold text-slate-500">Loading auction listing details...</p>
+        <div className="w-12 h-12 border-4 border-[#C2410C] border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-sm font-semibold text-[#78716C]">Loading auction listing details...</p>
       </div>
     );
   }
@@ -224,11 +222,11 @@ export const AuctionDetailsPage: React.FC = () => {
         <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
           <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900">Auction Listing Unavailable</h2>
-        <p className="text-sm text-slate-500">{error || 'The requested auction listing does not exist.'}</p>
+        <h2 className="text-2xl font-bold text-[#292524]">Auction Listing Unavailable</h2>
+        <p className="text-sm text-[#78716C]">{error || 'The requested auction listing does not exist.'}</p>
         <Link
           to="/auctions"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C2410C] text-white text-xs font-bold hover:bg-[#9A3412] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Marketplace</span>
@@ -247,21 +245,21 @@ export const AuctionDetailsPage: React.FC = () => {
   const images = auction.imageUrls && auction.imageUrls.length > 0 ? auction.imageUrls : [fallbackImage];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-[#FFFBF5]">
       {/* Top Breadcrumb */}
       <div className="flex items-center justify-between">
         <Link
           to="/auctions"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#78716C] hover:text-[#C2410C] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Marketplace</span>
         </Link>
         <div className="flex items-center gap-2 text-xs font-semibold">
-          <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
+          <span className="px-2.5 py-1 rounded-lg bg-[#FFEDD5] text-[#C2410C] border border-[#FED7AA] font-bold">
             {auction.category}
           </span>
-          <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+          <span className="px-2.5 py-1 rounded-lg bg-white text-[#292524] border border-[#E7E0D8]">
             {auction.condition}
           </span>
         </div>
@@ -272,8 +270,8 @@ export const AuctionDetailsPage: React.FC = () => {
         {/* Left Column: Image Gallery & Details (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Main Photo */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm">
-            <div className="relative aspect-4/3 w-full bg-slate-100 overflow-hidden flex items-center justify-center">
+          <div className="bg-white rounded-3xl border border-[#E7E0D8] overflow-hidden shadow-xs">
+            <div className="relative aspect-4/3 w-full bg-[#FFFBF5] overflow-hidden flex items-center justify-center">
               <img
                 src={images[selectedImageIndex] || fallbackImage}
                 alt={auction.title}
@@ -284,12 +282,12 @@ export const AuctionDetailsPage: React.FC = () => {
                 <span
                   className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-md ${
                     auction.status === 'active' && !timeRemaining.isEnded
-                      ? 'bg-emerald-600/90 text-white'
+                      ? 'bg-[#15803D]/95 text-white'
                       : auction.status === 'reserved'
-                      ? 'bg-amber-600/90 text-white'
+                      ? 'bg-[#C2410C]/95 text-white'
                       : auction.status === 'sold'
-                      ? 'bg-indigo-600/90 text-white'
-                      : 'bg-slate-900/90 text-white'
+                      ? 'bg-[#1C1917]/95 text-white'
+                      : 'bg-[#78716C]/95 text-white'
                   }`}
                 >
                   {auction.status === 'active' && !timeRemaining.isEnded ? 'Active Auction' : auction.status}
@@ -299,14 +297,14 @@ export const AuctionDetailsPage: React.FC = () => {
 
             {/* Gallery Thumbnails */}
             {images.length > 1 && (
-              <div className="p-3 border-t border-slate-100 flex items-center gap-2 overflow-x-auto">
+              <div className="p-3 border-t border-[#E7E0D8] flex items-center gap-2 overflow-x-auto">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setSelectedImageIndex(idx)}
                     className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
-                      selectedImageIndex === idx ? 'border-indigo-600 scale-105' : 'border-slate-200 opacity-70 hover:opacity-100'
+                      selectedImageIndex === idx ? 'border-[#C2410C] scale-105' : 'border-[#E7E0D8] opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
@@ -317,19 +315,19 @@ export const AuctionDetailsPage: React.FC = () => {
           </div>
 
           {/* Description Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-4 shadow-xs">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-3xl border border-[#E7E0D8] p-6 sm:p-8 space-y-4 shadow-xs">
+            <h2 className="text-lg font-bold text-[#292524] border-b border-[#E7E0D8] pb-3">
               Item Details & Condition
             </h2>
-            <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+            <div className="text-sm text-[#292524] leading-relaxed whitespace-pre-line">
               {auction.description}
             </div>
 
             {/* Verification & Handover Guarantee Box */}
-            <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5">
-              <ShieldCheck className="w-6 h-6 text-indigo-600 shrink-0 mt-0.5" />
-              <div className="text-xs text-slate-600 space-y-1">
-                <div className="font-bold text-slate-800 text-sm">Campus Handover Policy</div>
+            <div className="mt-6 p-4 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] flex items-start gap-3.5">
+              <ShieldCheck className="w-6 h-6 text-[#15803D] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#78716C] space-y-1">
+                <div className="font-bold text-[#292524] text-sm">Campus Handover Policy</div>
                 <p>
                   No online payment transfers are processed. Once the auction concludes, the highest bidder and 
                   seller arrange physical handover on Kongu Engineering College campus. Both parties confirm completion in-app.
@@ -339,23 +337,23 @@ export const AuctionDetailsPage: React.FC = () => {
           </div>
 
           {/* Seller Profile Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 flex items-center justify-between shadow-xs">
+          <div className="bg-white rounded-3xl border border-[#E7E0D8] p-6 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-extrabold flex items-center justify-center text-lg">
+              <div className="w-12 h-12 rounded-2xl bg-[#FFEDD5] border border-[#FED7AA] text-[#C2410C] font-extrabold flex items-center justify-center text-lg">
                 {sellerObj?.fullName?.charAt(0)?.toUpperCase() || 'S'}
               </div>
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Listed By</div>
-                <div className="text-base font-bold text-slate-900">{sellerObj?.fullName || 'Kongu Student'}</div>
-                <div className="text-xs text-slate-500 font-medium">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#78716C]">Listed By</div>
+                <div className="text-base font-bold text-[#292524]">{sellerObj?.fullName || 'Kongu Student'}</div>
+                <div className="text-xs text-[#78716C] font-medium">
                   {sellerObj?.department ? `${sellerObj.department} Department` : 'Kongu Engineering College'}
                   {sellerObj?.year ? ` • Year ${sellerObj.year}` : ''}
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[11px] font-semibold text-slate-400 block">Member Since</span>
-              <span className="text-xs font-bold text-slate-700">
+              <span className="text-[11px] font-semibold text-[#78716C] block">Member Since</span>
+              <span className="text-xs font-bold text-[#292524]">
                 {sellerObj?.createdAt ? new Date(sellerObj.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '2026'}
               </span>
             </div>
@@ -364,44 +362,44 @@ export const AuctionDetailsPage: React.FC = () => {
 
         {/* Right Column: Pricing, Live Countdown & Bid Form (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-md shadow-slate-200/50 space-y-6">
+          <div className="bg-white rounded-3xl border border-[#E7E0D8] p-6 sm:p-8 shadow-md shadow-stone-200/50 space-y-6">
             <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 leading-tight">
+              <h1 className="text-2xl font-extrabold text-[#292524] leading-tight">
                 {auction.title}
               </h1>
-              <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+              <div className="mt-2 flex items-center gap-3 text-xs text-[#78716C]">
                 <span>Listed {formatDate(auction.createdAt)}</span>
                 <span>•</span>
-                <span className="font-semibold text-indigo-600">ID: {auction._id.slice(-6)}</span>
+                <span className="font-semibold text-[#C2410C]">ID: {auction._id.slice(-6)}</span>
               </div>
             </div>
 
             {/* Price Box */}
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-5 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] space-y-3">
               <div className="flex items-end justify-between">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#78716C] block">
                     {hasLeadingBid ? 'Current Leading Bid' : 'Starting Price'}
                   </span>
-                  <div className="text-3xl font-black text-slate-900 tracking-tight mt-0.5">
+                  <div className="text-3xl font-black text-[#292524] tracking-tight mt-0.5">
                     {formatPrice(hasLeadingBid ? auction.currentLeadingBid : auction.startingPrice)}
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#78716C] block">
                     Total Bids
                   </span>
-                  <div className="flex items-center justify-end gap-1 text-base font-extrabold text-amber-600 mt-0.5">
-                    <Flame className="w-4 h-4 fill-amber-500" />
+                  <div className="flex items-center justify-end gap-1 text-base font-extrabold text-[#C2410C] mt-0.5">
+                    <Flame className="w-4 h-4 fill-[#C2410C]" />
                     <span>{auction.bidCount}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
-                <span>Min Bid Increment: <strong className="text-slate-900">+₹{auction.minimumBidIncrement}</strong></span>
-                <span>Starting: <strong className="text-slate-900">{formatPrice(auction.startingPrice)}</strong></span>
+              <div className="pt-3 border-t border-[#E7E0D8] flex items-center justify-between text-xs text-[#78716C]">
+                <span>Min Bid Increment: <strong className="text-[#292524]">+₹{auction.minimumBidIncrement}</strong></span>
+                <span>Starting: <strong className="text-[#292524]">{formatPrice(auction.startingPrice)}</strong></span>
               </div>
             </div>
 
@@ -409,10 +407,10 @@ export const AuctionDetailsPage: React.FC = () => {
             <div
               className={`p-4 rounded-2xl border text-center transition-all ${
                 isClosed
-                  ? 'bg-slate-900 text-white border-slate-800'
+                  ? 'bg-[#1C1917] text-white border-stone-800'
                   : timeRemaining.isUrgent
-                  ? 'bg-rose-50 border-rose-200 text-rose-800'
-                  : 'bg-indigo-50/70 border-indigo-100 text-indigo-900'
+                  ? 'bg-[#C2410C] text-white border-[#C2410C]'
+                  : 'bg-[#FFEDD5]/60 border-[#FED7AA] text-[#9A3412]'
               }`}
             >
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider">
@@ -429,14 +427,14 @@ export const AuctionDetailsPage: React.FC = () => {
 
             {/* Outcome Display if Closed */}
             {isClosed ? (
-              <div className="p-5 rounded-2xl bg-slate-100 border border-slate-200 text-center space-y-2">
-                <Trophy className="w-8 h-8 text-amber-500 mx-auto" />
-                <div className="text-sm font-extrabold text-slate-900">
+              <div className="p-5 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] text-center space-y-2">
+                <Trophy className="w-8 h-8 text-[#C2410C] mx-auto" />
+                <div className="text-sm font-extrabold text-[#292524]">
                   {auction.status === 'reserved' || auction.status === 'sold'
                     ? `Item Won for ${formatPrice(auction.currentLeadingBid)}`
                     : 'Auction Closed Unsold'}
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#78716C]">
                   {auction.status === 'reserved' || auction.status === 'sold'
                     ? 'The item is reserved for the winning student to complete campus handover.'
                     : 'No valid bids were submitted before the closing deadline.'}
@@ -444,7 +442,7 @@ export const AuctionDetailsPage: React.FC = () => {
                 {user && (
                   <Link
                     to="/transactions"
-                    className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors"
+                    className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-[#C2410C] hover:bg-[#9A3412] text-white rounded-xl text-xs font-bold transition-colors"
                   >
                     <span>View Handover Status</span>
                   </Link>
@@ -452,11 +450,11 @@ export const AuctionDetailsPage: React.FC = () => {
               </div>
             ) : isSeller ? (
               /* Seller Disabled View */
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-3">
-                <Lock className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+              <div className="p-4 rounded-2xl bg-[#FFEDD5]/60 border border-[#FED7AA] text-[#9A3412] text-xs flex items-start gap-3">
+                <Lock className="w-4 h-4 shrink-0 mt-0.5 text-[#C2410C]" />
                 <div>
                   <div className="font-bold">You are the seller of this auction</div>
-                  <p className="mt-0.5 text-amber-700">
+                  <p className="mt-0.5 text-[#9A3412]">
                     Kongu fairness policy prevents sellers from bidding on their own listings.
                   </p>
                 </div>
@@ -468,12 +466,12 @@ export const AuctionDetailsPage: React.FC = () => {
                   <div
                     className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 ${
                       bidFeedback.type === 'success'
-                        ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                        ? 'bg-emerald-50 border border-emerald-200 text-[#15803D]'
                         : 'bg-rose-50 border border-rose-200 text-rose-800'
                     }`}
                   >
                     {bidFeedback.type === 'success' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#15803D] shrink-0 mt-0.5" />
                     ) : (
                       <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     )}
@@ -483,17 +481,17 @@ export const AuctionDetailsPage: React.FC = () => {
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#78716C]">
                       Your Bid Amount (₹)
                     </label>
-                    <span className="text-xs text-indigo-600 font-bold">
+                    <span className="text-xs text-[#C2410C] font-bold">
                       Min Valid: ₹{minAcceptableBid}
                     </span>
                   </div>
 
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
-                      <IndianRupee className="w-5 h-5 text-slate-600" />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C] font-bold">
+                      <IndianRupee className="w-5 h-5 text-[#292524]" />
                     </div>
                     <input
                       type="number"
@@ -503,31 +501,31 @@ export const AuctionDetailsPage: React.FC = () => {
                       onChange={(e) =>
                         setBidInput(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xl font-black text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-11 pr-4 py-3 bg-[#FFFBF5] border border-[#E7E0D8] rounded-2xl text-xl font-black text-[#292524] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C]"
                     />
                   </div>
 
                   {/* Preset increment buttons */}
                   <div className="mt-2.5 flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400 font-medium">Quick Add:</span>
+                    <span className="text-[11px] text-[#78716C] font-medium">Quick Add:</span>
                     <button
                       type="button"
                       onClick={() => addPreset(20)}
-                      className="px-2.5 py-1 text-xs font-bold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-700 transition-colors"
+                      className="px-2.5 py-1 text-xs font-bold bg-[#FFFBF5] border border-[#E7E0D8] hover:bg-[#FFEDD5] hover:text-[#C2410C] rounded-lg text-[#292524] transition-colors"
                     >
                       +₹20
                     </button>
                     <button
                       type="button"
                       onClick={() => addPreset(50)}
-                      className="px-2.5 py-1 text-xs font-bold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-700 transition-colors"
+                      className="px-2.5 py-1 text-xs font-bold bg-[#FFFBF5] border border-[#E7E0D8] hover:bg-[#FFEDD5] hover:text-[#C2410C] rounded-lg text-[#292524] transition-colors"
                     >
                       +₹50
                     </button>
                     <button
                       type="button"
                       onClick={() => addPreset(100)}
-                      className="px-2.5 py-1 text-xs font-bold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-700 transition-colors"
+                      className="px-2.5 py-1 text-xs font-bold bg-[#FFFBF5] border border-[#E7E0D8] hover:bg-[#FFEDD5] hover:text-[#C2410C] rounded-lg text-[#292524] transition-colors"
                     >
                       +₹100
                     </button>
@@ -538,7 +536,7 @@ export const AuctionDetailsPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={placingBid}
-                    className="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-lg shadow-indigo-500/25 disabled:opacity-70 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 px-6 rounded-2xl bg-[#C2410C] hover:bg-[#9A3412] text-white text-base font-extrabold shadow-lg shadow-[#C2410C]/25 disabled:opacity-70 transition-all flex items-center justify-center gap-2"
                   >
                     {placingBid ? (
                       <>
@@ -555,7 +553,7 @@ export const AuctionDetailsPage: React.FC = () => {
                 ) : (
                   <Link
                     to="/login"
-                    className="w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-extrabold text-center block transition-all shadow-md"
+                    className="w-full py-4 px-6 rounded-2xl bg-[#292524] hover:bg-[#1C1917] text-white text-sm font-extrabold text-center block transition-all shadow-md"
                   >
                     Log In to Bid with @kongu.edu
                   </Link>
@@ -567,16 +565,16 @@ export const AuctionDetailsPage: React.FC = () => {
       </div>
 
       {/* Public Bid History Section */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div className="bg-white rounded-3xl border border-[#E7E0D8] p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex items-center justify-between border-b border-[#E7E0D8] pb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-[#292524] flex items-center gap-2">
               <span>Public Bid History</span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FFEDD5] text-[#C2410C]">
                 {bids.length}
               </span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#78716C] mt-0.5">
               Transparent live history. Private emails and passwords are never exposed.
             </p>
           </div>
@@ -584,14 +582,14 @@ export const AuctionDetailsPage: React.FC = () => {
 
         {bids.length === 0 ? (
           <div className="text-center py-10 space-y-2">
-            <Sparkles className="w-8 h-8 text-slate-300 mx-auto" />
-            <div className="text-sm font-bold text-slate-700">No bids yet on this auction</div>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            <Sparkles className="w-8 h-8 text-[#78716C]/40 mx-auto" />
+            <div className="text-sm font-bold text-[#292524]">No bids yet on this auction</div>
+            <p className="text-xs text-[#78716C] max-w-sm mx-auto">
               Be the first Kongu student to place a bid starting at {formatPrice(auction.startingPrice)}!
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-[#E7E0D8]">
             {bids.map((bid, index) => {
               const bidder: any = bid.bidderId;
               const isLeading = index === 0;
@@ -600,15 +598,15 @@ export const AuctionDetailsPage: React.FC = () => {
                 <div
                   key={bid._id}
                   className={`py-3.5 px-3 rounded-xl flex items-center justify-between transition-colors ${
-                    isLeading ? 'bg-amber-50/60 font-medium' : 'hover:bg-slate-50/60'
+                    isLeading ? 'bg-[#FFEDD5]/35 font-medium' : 'hover:bg-[#FFFBF5]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${
                         isLeading
-                          ? 'bg-amber-500 text-white shadow-xs'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-[#C2410C] text-white shadow-xs'
+                          : 'bg-[#FFFBF5] text-[#78716C] border border-[#E7E0D8]'
                       }`}
                     >
                       {bidder?.fullName?.charAt(0)?.toUpperCase() || 'K'}
@@ -616,23 +614,23 @@ export const AuctionDetailsPage: React.FC = () => {
 
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-900">
+                        <span className="text-sm font-bold text-[#292524]">
                           {bidder?.fullName || 'Kongu Student'}
                         </span>
                         {isLeading && (
-                          <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-amber-500 text-white rounded-md shadow-xs">
+                          <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-[#C2410C] text-white rounded-md shadow-xs">
                             Leading Bid
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-[11px] text-[#78716C]">
                         {bidder?.department ? `${bidder.department} Department` : 'Kongu Campus'} • {formatDate(bid.createdAt)}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-base font-black text-slate-900 tracking-tight">
+                    <div className="text-base font-black text-[#292524] tracking-tight">
                       {formatPrice(bid.amount)}
                     </div>
                   </div>

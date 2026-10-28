@@ -45,21 +45,21 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-slate-200/80 shadow-xl shadow-slate-200/50">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-[#E7E0D8] shadow-xl shadow-stone-200/50">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white mb-3 shadow-md shadow-indigo-100">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C2410C] text-white mb-3 shadow-md shadow-[#C2410C]/20">
             <Gavel className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-2xl font-extrabold text-[#292524] tracking-tight">
             Welcome back, Kongu Student
           </h2>
-          <p className="mt-1.5 text-sm text-slate-500">
-            Log in with your official <span className="font-semibold text-indigo-600">@kongu.edu</span> account
+          <p className="mt-1.5 text-sm text-[#78716C]">
+            Log in with your official <span className="font-bold text-[#C2410C]">@kongu.edu</span> account
           </p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
             <span>{error}</span>
           </div>
@@ -67,11 +67,11 @@ export const LoginPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
               Kongu Email Address
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
                 <Mail className="w-4 h-4" />
               </div>
               <input
@@ -80,17 +80,17 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="rollno.department@kongu.edu"
-                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono"
+                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] focus:border-[#C2410C] transition-all font-mono text-[#292524]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#78716C] mb-1.5">
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C]">
                 <Lock className="w-4 h-4" />
               </div>
               <input
@@ -99,7 +99,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[#FFFBF5] border border-[#E7E0D8] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C2410C] focus:border-[#C2410C] transition-all text-[#292524]"
               />
             </div>
           </div>
@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md shadow-indigo-100 disabled:opacity-70 transition-all"
+            className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-[#C2410C] hover:bg-[#9A3412] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C2410C] shadow-md shadow-[#C2410C]/25 disabled:opacity-70 transition-all cursor-pointer"
           >
             {submitting ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -121,34 +121,34 @@ export const LoginPage: React.FC = () => {
         </form>
 
         {/* Demo shortcuts for hackathon evaluators */}
-        <div className="pt-4 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+        <div className="pt-4 border-t border-[#E7E0D8]">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#C2410C]" />
             <span>Hackathon Quick Login:</span>
           </div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
-              onClick={() => fillDemoAccount('divya.cse@kongu.edu', 'kongu123')}
-              className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-left truncate font-mono text-[11px] transition-colors"
-              title="Student 1 (Seller)"
+              onClick={() => fillDemoAccount('divya.cse@kongu.edu', 'kongupassword123')}
+              className="py-1.5 px-2 bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] text-[#292524] rounded-lg text-left truncate font-mono text-[11px] transition-colors cursor-pointer"
+              title="Student 1 (Seller) - Password: kongupassword123"
             >
               divya.cse@kongu.edu
             </button>
             <button
               type="button"
-              onClick={() => fillDemoAccount('rahul.it@kongu.edu', 'kongu123')}
-              className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-left truncate font-mono text-[11px] transition-colors"
-              title="Student 2 (Bidder)"
+              onClick={() => fillDemoAccount('rahul.it@kongu.edu', 'kongupassword123')}
+              className="py-1.5 px-2 bg-[#FFFBF5] hover:bg-[#FFEDD5] hover:text-[#C2410C] border border-[#E7E0D8] text-[#292524] rounded-lg text-left truncate font-mono text-[11px] transition-colors cursor-pointer"
+              title="Student 2 (Bidder) - Password: kongupassword123"
             >
               rahul.it@kongu.edu
             </button>
           </div>
         </div>
 
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-[#78716C]">
           Don't have an account yet?{' '}
-          <Link to="/register" className="font-semibold text-indigo-600 hover:underline">
+          <Link to="/register" className="font-semibold text-[#C2410C] hover:underline">
             Register with @kongu.edu
           </Link>
         </p>

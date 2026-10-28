@@ -152,20 +152,20 @@ export const TransactionsPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-xs font-bold text-indigo-700 mb-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFEDD5] border border-[#FED7AA] text-xs font-bold text-[#C2410C] mb-2">
           <Handshake className="w-3.5 h-3.5" />
           <span>Campus Physical Exchange Portal</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-extrabold text-[#292524] tracking-tight">
           Campus Handovers & Transactions
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-[#78716C]">
           Coordinate meeting spots, view deadlines, and complete 2-party confirmations for campus exchanges.
         </p>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
           <span>{error}</span>
         </div>
@@ -173,23 +173,23 @@ export const TransactionsPage: React.FC = () => {
 
       {loading ? (
         <div className="py-16 text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs font-semibold text-slate-500">Retrieving campus transactions...</p>
+          <div className="w-10 h-10 border-4 border-[#C2410C] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs font-semibold text-[#78716C]">Retrieving campus transactions...</p>
         </div>
       ) : transactions.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 shadow-xs">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl border border-[#E7E0D8] p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-[#FFEDD5] text-[#C2410C] flex items-center justify-center mx-auto">
             <Handshake className="w-7 h-7" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800">No Active Handovers</h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <h3 className="text-lg font-bold text-[#292524]">No Active Handovers</h3>
+          <p className="text-xs text-[#78716C] leading-relaxed">
             When you win an auction or when an auction you listed concludes with a winning bidder, 
             reservation and meeting details will appear here.
           </p>
           <div className="pt-2">
             <Link
               to="/auctions"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C2410C] hover:bg-[#9A3412] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
             >
               <span>Explore Active Auctions</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -208,19 +208,19 @@ export const TransactionsPage: React.FC = () => {
             return (
               <div
                 key={t._id}
-                className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+                className="bg-white rounded-3xl border border-[#E7E0D8] shadow-sm overflow-hidden transition-all"
               >
                 {/* Header status bar */}
-                <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div className="px-6 py-4 bg-[#FFFBF5] border-b border-[#E7E0D8] flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                         t.status === 'completed'
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-100 text-[#15803D]'
                           : t.status === 'failed'
                           ? 'bg-rose-100 text-rose-800'
                           : t.status === 'handover_scheduled'
-                          ? 'bg-sky-100 text-sky-800'
+                          ? 'bg-[#FFEDD5] text-[#C2410C] border border-[#FED7AA]'
                           : 'bg-amber-100 text-amber-800'
                       }`}
                     >
@@ -233,18 +233,18 @@ export const TransactionsPage: React.FC = () => {
                         : 'Failed / Missed'}
                     </span>
 
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-700">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-white border border-[#E7E0D8] text-[#292524]">
                       {isSeller ? 'You are the Seller' : 'You are the Buyer'}
                     </span>
 
                     {t.attemptNumber > 1 && (
-                      <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                      <span className="text-[11px] font-semibold text-[#C2410C] bg-[#FFEDD5] px-2 py-0.5 rounded-md border border-[#FED7AA]">
                         Reassigned Round #{t.attemptNumber}
                       </span>
                     )}
                   </div>
 
-                  <div className="text-xs text-slate-400 font-mono">
+                  <div className="text-xs text-[#78716C] font-mono">
                     Reserved: {formatDate(t.createdAt)}
                   </div>
                 </div>
@@ -258,10 +258,10 @@ export const TransactionsPage: React.FC = () => {
                         <img
                           src={auctionObj.imageUrls[0]}
                           alt={auctionObj.title}
-                          className="w-20 h-20 rounded-2xl object-cover border border-slate-200 shrink-0"
+                          className="w-20 h-20 rounded-2xl object-cover border border-[#E7E0D8] shrink-0"
                         />
                       ) : (
-                        <div className="w-20 h-20 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 font-bold text-xs">
+                        <div className="w-20 h-20 rounded-2xl bg-[#FFEDD5] flex items-center justify-center text-[#C2410C] shrink-0 font-bold text-xs">
                           Item Photo
                         </div>
                       )}
@@ -269,28 +269,28 @@ export const TransactionsPage: React.FC = () => {
                       <div className="min-w-0">
                         <Link
                           to={`/auctions/${auctionObj?._id || ''}`}
-                          className="text-base font-bold text-slate-900 hover:text-indigo-600 transition-colors line-clamp-1 block"
+                          className="text-base font-bold text-[#292524] hover:text-[#C2410C] transition-colors line-clamp-1 block"
                         >
                           {auctionObj?.title || 'Auction Item'}
                         </Link>
-                        <div className="text-xs text-slate-500 mt-0.5">
+                        <div className="text-xs text-[#78716C] mt-0.5">
                           Agreed Winning Bid:
                         </div>
-                        <div className="text-xl font-black text-slate-900 mt-0.5">
+                        <div className="text-xl font-black text-[#292524] mt-0.5">
                           {formatPrice(t.amount)}
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs space-y-1.5">
-                      <div className="font-bold text-slate-700 flex items-center justify-between">
+                    <div className="p-3.5 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] text-xs space-y-1.5">
+                      <div className="font-bold text-[#292524] flex items-center justify-between">
                         <span>{isSeller ? 'Winning Buyer:' : 'Seller:'}</span>
-                        <span className="text-indigo-600 font-mono">
+                        <span className="text-[#C2410C] font-mono">
                           {peer?.department ? `${peer.department} Dept` : 'Kongu Student'}
                         </span>
                       </div>
-                      <div className="text-slate-800 font-semibold">{peer?.fullName}</div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-[#292524] font-semibold">{peer?.fullName}</div>
+                      <div className="text-[11px] text-[#78716C]">
                         Official In-Campus exchange contact
                       </div>
                     </div>
@@ -307,7 +307,7 @@ export const TransactionsPage: React.FC = () => {
                   </div>
 
                   {/* Right: Meeting Location, Deadlines & Confirmation (7 cols) */}
-                  <div className="md:col-span-7 space-y-5 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6">
+                  <div className="md:col-span-7 space-y-5 border-t md:border-t-0 md:border-l border-[#E7E0D8] md:pl-6">
                     {/* Feedback message */}
                     {actionFeedback && actionFeedback.id === t._id && (
                       <div
@@ -318,7 +318,7 @@ export const TransactionsPage: React.FC = () => {
                         }`}
                       >
                         {actionFeedback.type === 'success' ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-4 h-4 text-[#15803D] shrink-0 mt-0.5" />
                         ) : (
                           <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                         )}
@@ -329,13 +329,13 @@ export const TransactionsPage: React.FC = () => {
                     {/* Meeting arrangement details */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#78716C]">
                           Campus Handover Details
                         </span>
                         {t.status !== 'completed' && t.status !== 'failed' && (
                           <button
                             onClick={() => handleOpenSchedule(t)}
-                            className="text-xs font-bold text-indigo-600 hover:underline"
+                            className="text-xs font-bold text-[#C2410C] hover:text-[#9A3412] hover:underline cursor-pointer"
                           >
                             {t.handoverLocation ? 'Edit Meeting Details' : '+ Propose Meeting Spot'}
                           </button>
@@ -344,9 +344,9 @@ export const TransactionsPage: React.FC = () => {
 
                       {activeSchedulingId === t._id ? (
                         /* Edit Meeting Spot Form */
-                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
+                        <div className="p-4 bg-[#FFFBF5] border border-[#E7E0D8] rounded-2xl space-y-3 text-xs">
                           <div>
-                            <label className="block font-semibold text-slate-700 mb-1">
+                            <label className="block font-semibold text-[#292524] mb-1">
                               Campus Meeting Spot *
                             </label>
                             <input
@@ -354,24 +354,24 @@ export const TransactionsPage: React.FC = () => {
                               value={meetingLocation}
                               onChange={(e) => setMeetingLocation(e.target.value)}
                               placeholder="e.g., Library Entrance, IT Block Lobby, Convention Center"
-                              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                              className="w-full p-2.5 bg-white border border-[#E7E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C2410C] font-medium text-[#292524]"
                             />
                           </div>
 
                           <div>
-                            <label className="block font-semibold text-slate-700 mb-1">
+                            <label className="block font-semibold text-[#292524] mb-1">
                               Proposed Meeting Date & Time
                             </label>
                             <input
                               type="datetime-local"
                               value={meetingDateTime}
                               onChange={(e) => setMeetingDateTime(e.target.value)}
-                              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                              className="w-full p-2.5 bg-white border border-[#E7E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C2410C] font-medium text-[#292524]"
                             />
                           </div>
 
                           <div>
-                            <label className="block font-semibold text-slate-700 mb-1">
+                            <label className="block font-semibold text-[#292524] mb-1">
                               Handover Notes (Optional)
                             </label>
                             <input
@@ -379,7 +379,7 @@ export const TransactionsPage: React.FC = () => {
                               value={meetingNotes}
                               onChange={(e) => setMeetingNotes(e.target.value)}
                               placeholder="e.g., I will be wearing a blue jacket / Call near gate"
-                              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="w-full p-2.5 bg-white border border-[#E7E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C2410C] text-[#292524]"
                             />
                           </div>
 
@@ -387,7 +387,7 @@ export const TransactionsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setActiveSchedulingId(null)}
-                              className="px-3 py-1.5 text-slate-600 hover:text-slate-800"
+                              className="px-3 py-1.5 text-[#78716C] hover:text-[#292524]"
                             >
                               Cancel
                             </button>
@@ -395,7 +395,7 @@ export const TransactionsPage: React.FC = () => {
                               type="button"
                               disabled={updatingDetails}
                               onClick={() => handleSaveSchedule(t._id)}
-                              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-xs"
+                              className="px-4 py-1.5 bg-[#C2410C] hover:bg-[#9A3412] text-white rounded-xl font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
                             >
                               <Send className="w-3.5 h-3.5" />
                               <span>Save Details</span>
@@ -404,12 +404,12 @@ export const TransactionsPage: React.FC = () => {
                         </div>
                       ) : (
                         /* Read-only meeting display */
-                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
+                        <div className="p-4 rounded-2xl bg-[#FFFBF5] border border-[#E7E0D8] space-y-2 text-xs">
                           <div className="flex items-start gap-2.5">
-                            <MapPin className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                            <MapPin className="w-4 h-4 text-[#C2410C] shrink-0 mt-0.5" />
                             <div>
-                              <span className="text-slate-400 block font-medium">Location:</span>
-                              <span className="font-bold text-slate-800">
+                              <span className="text-[#78716C] block font-medium">Location:</span>
+                              <span className="font-bold text-[#292524]">
                                 {t.handoverLocation || 'Not scheduled yet. Please propose a meeting spot.'}
                               </span>
                             </div>
@@ -417,10 +417,10 @@ export const TransactionsPage: React.FC = () => {
 
                           {t.handoverDateTime && (
                             <div className="flex items-start gap-2.5">
-                              <Calendar className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                              <Calendar className="w-4 h-4 text-[#C2410C] shrink-0 mt-0.5" />
                               <div>
-                                <span className="text-slate-400 block font-medium">Date & Time:</span>
-                                <span className="font-bold text-slate-800">
+                                <span className="text-[#78716C] block font-medium">Date & Time:</span>
+                                <span className="font-bold text-[#292524]">
                                   {formatDate(t.handoverDateTime)}
                                 </span>
                               </div>
@@ -428,7 +428,7 @@ export const TransactionsPage: React.FC = () => {
                           )}
 
                           {t.handoverNotes && (
-                            <div className="text-slate-600 pt-1 border-t border-slate-200/60 text-[11px]">
+                            <div className="text-[#78716C] pt-1 border-t border-[#E7E0D8] text-[11px]">
                               Note: {t.handoverNotes}
                             </div>
                           )}
@@ -438,10 +438,10 @@ export const TransactionsPage: React.FC = () => {
 
                     {/* Two-Party Physical Handover Confirmation Status */}
                     <div className="pt-2 space-y-3">
-                      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400">
+                      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#78716C]">
                         <span>Handover Verification (Both Parties Required)</span>
                         {t.status === 'completed' && (
-                          <span className="text-emerald-600 font-extrabold flex items-center gap-1">
+                          <span className="text-[#15803D] font-extrabold flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Verified</span>
                           </span>
@@ -453,18 +453,18 @@ export const TransactionsPage: React.FC = () => {
                         <div
                           className={`p-3 rounded-2xl border flex items-center gap-2.5 ${
                             t.sellerConfirmedAt
-                              ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-                              : 'bg-slate-50 border-slate-200 text-slate-500'
+                              ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                              : 'bg-[#FFFBF5] border-[#E7E0D8] text-[#78716C]'
                           }`}
                         >
                           <UserCheck
                             className={`w-4 h-4 shrink-0 ${
-                              t.sellerConfirmedAt ? 'text-emerald-600' : 'text-slate-400'
+                              t.sellerConfirmedAt ? 'text-[#15803D]' : 'text-[#78716C]'
                             }`}
                           />
                           <div>
-                            <div className="font-bold">Seller Confirmed</div>
-                            <div className="text-[10px]">
+                            <div className="font-bold text-[#292524]">Seller Confirmed</div>
+                            <div className="text-[10px] text-[#78716C]">
                               {t.sellerConfirmedAt
                                 ? formatDate(t.sellerConfirmedAt)
                                 : 'Awaiting confirmation'}
@@ -476,18 +476,18 @@ export const TransactionsPage: React.FC = () => {
                         <div
                           className={`p-3 rounded-2xl border flex items-center gap-2.5 ${
                             t.buyerConfirmedAt
-                              ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-                              : 'bg-slate-50 border-slate-200 text-slate-500'
+                              ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                              : 'bg-[#FFFBF5] border-[#E7E0D8] text-[#78716C]'
                           }`}
                         >
                           <UserCheck
                             className={`w-4 h-4 shrink-0 ${
-                              t.buyerConfirmedAt ? 'text-emerald-600' : 'text-slate-400'
+                              t.buyerConfirmedAt ? 'text-[#15803D]' : 'text-[#78716C]'
                             }`}
                           />
                           <div>
-                            <div className="font-bold">Buyer Confirmed</div>
-                            <div className="text-[10px]">
+                            <div className="font-bold text-[#292524]">Buyer Confirmed</div>
+                            <div className="text-[10px] text-[#78716C]">
                               {t.buyerConfirmedAt
                                 ? formatDate(t.buyerConfirmedAt)
                                 : 'Awaiting confirmation'}
@@ -500,8 +500,8 @@ export const TransactionsPage: React.FC = () => {
                       {t.status !== 'completed' && t.status !== 'failed' && (
                         <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
                           {myConfirmed ? (
-                            <div className="text-xs text-emerald-700 font-bold flex items-center gap-1.5 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
-                              <CheckCircle2 className="w-4 h-4" />
+                            <div className="text-xs text-emerald-800 font-bold flex items-center gap-1.5 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                              <CheckCircle2 className="w-4 h-4 text-[#15803D]" />
                               <span>
                                 You confirmed handover. Waiting for {peer?.fullName} to confirm.
                               </span>
@@ -510,7 +510,7 @@ export const TransactionsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleConfirmHandover(t._id)}
-                              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2"
+                              className="px-5 py-2.5 rounded-xl bg-[#15803D] hover:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-700/20 transition-all flex items-center gap-2 cursor-pointer"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                               <span>Confirm Handover Completed</span>
@@ -522,7 +522,7 @@ export const TransactionsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleFailAndReassign(t._id)}
-                              className="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline"
+                              className="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer"
                             >
                               Report Failed Pickup & Next Bidder
                             </button>
