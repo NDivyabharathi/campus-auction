@@ -6,6 +6,8 @@ import authRoutes from './routes/authRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import auctionRoutes from './routes/auctionRoutes.js';
 import bidRoutes from './routes/bidRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import devRoutes from './routes/devRoutes.js';
 
 export const createApp = () => {
   const app = express();
@@ -40,6 +42,8 @@ export const createApp = () => {
   app.use('/api/images', imageRoutes);
   app.use('/api/auctions', auctionRoutes);
   app.use('/api/bids', bidRoutes);
+  app.use('/api/transactions', transactionRoutes);
+  app.use('/api/dev', devRoutes);
 
   // 404 Not Found
   app.use((_req: Request, res: Response) => {

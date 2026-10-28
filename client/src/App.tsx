@@ -8,6 +8,7 @@ import { RegisterPage } from './pages/RegisterPage.js';
 import { MarketplacePage } from './pages/MarketplacePage.js';
 import { CreateListingPage } from './pages/CreateListingPage.js';
 import { AuctionDetailsPage } from './pages/AuctionDetailsPage.js';
+import { TransactionsPage } from './pages/TransactionsPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 
 export const App: React.FC = () => {
@@ -55,7 +56,7 @@ export const App: React.FC = () => {
                 path="/transactions"
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center">Transactions Page Loading...</div>
+                    <TransactionsPage />
                   </ProtectedRoute>
                 }
               />
