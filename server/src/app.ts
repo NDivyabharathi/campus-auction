@@ -10,6 +10,7 @@ import transactionRoutes from './routes/transactionRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import assistantRoutes from './routes/assistantRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
+import wantRoutes from './routes/wantRoutes.js';
 import devRoutes from './routes/devRoutes.js';
 
 export const createApp = () => {
@@ -49,6 +50,7 @@ export const createApp = () => {
   app.use('/api/notifications', notificationRoutes);
   app.use('/api/assistant', assistantRoutes);
   app.use('/api/questions', questionRoutes);
+  app.use('/api/wants', wantRoutes);
   app.use('/api/dev', devRoutes);
 
   // 404 Not Found

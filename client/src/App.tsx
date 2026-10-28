@@ -13,6 +13,7 @@ import { TransactionsPage } from './pages/TransactionsPage.js';
 import { MyListingsPage } from './pages/MyListingsPage.js';
 import { MyBidsPage } from './pages/MyBidsPage.js';
 import { NotificationsPage } from './pages/NotificationsPage.js';
+import { MyWantsPage } from './pages/MyWantsPage.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 import { AssistantFloatingButton } from './components/AssistantFloatingButton.js';
 
@@ -55,6 +56,14 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <MyBidsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/my-wants"
+                  element={
+                    <ProtectedRoute>
+                      <MyWantsPage />
                     </ProtectedRoute>
                   }
                 />

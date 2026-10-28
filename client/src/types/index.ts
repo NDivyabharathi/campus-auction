@@ -93,6 +93,8 @@ export type NotificationType =
   | 'handover_reassigned'
   | 'question_asked'
   | 'answer_received'
+  | 'want_match'
+  | 'want_fulfilled_suggestion'
   | 'system';
 
 export interface AppNotification {
@@ -185,4 +187,31 @@ export interface AuctionQuestion {
   createdAt: string;
   updatedAt: string;
 }
+
+export type WantStatus = 'ACTIVE' | 'PAUSED' | 'FULFILLED' | 'EXPIRED';
+
+export interface Want {
+  _id: string;
+  student: string | User;
+  keywords: string;
+  category?: AuctionCategory;
+  maxPrice?: number;
+  condition?: ItemCondition;
+  status: WantStatus;
+  matchCount: number;
+  expiresAt: string;
+  fulfilledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WantMatch {
+  _id: string;
+  want: string | Want;
+  listing: Auction;
+  student: string | User;
+  matchReason: string;
+  matchedAt: string;
+}
+
 

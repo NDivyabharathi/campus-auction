@@ -51,6 +51,16 @@ export const NotificationDropdown: React.FC = () => {
     }
     setIsOpen(false);
 
+    if (notif.type === 'want_match' || notif.type === 'want_fulfilled_suggestion') {
+      if (notif.auctionId) {
+        const aucId = typeof notif.auctionId === 'string' ? notif.auctionId : notif.auctionId._id;
+        navigate(`/auctions/${aucId}`);
+      } else {
+        navigate('/my-wants');
+      }
+      return;
+    }
+
     if (notif.transactionId) {
       navigate('/transactions');
     } else if (notif.auctionId) {
@@ -80,6 +90,10 @@ export const NotificationDropdown: React.FC = () => {
         return <XCircle className="w-4 h-4 text-rose-600" />;
       case 'handover_reassigned':
         return <Sparkles className="w-4 h-4 text-[#C2410C]" />;
+      case 'want_match':
+        return <Sparkles className="w-4 h-4 text-[#C2410C]" />;
+      case 'want_fulfilled_suggestion':
+        return <CheckCircle2 className="w-4 h-4 text-purple-600" />;
       default:
         return <AlertCircle className="w-4 h-4 text-[#78716C]" />;
     }

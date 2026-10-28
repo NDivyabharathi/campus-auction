@@ -4,6 +4,7 @@ import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
 import { broadcastAuctionUpdate } from '../socket.js';
 import { createNotification } from './notificationService.js';
+import { scanAndExpireWants } from './wantService.js';
 
 export const processAuctionClosure = async (auctionId: string): Promise<any> => {
   try {
@@ -189,6 +190,9 @@ export const startAuctionClosureWorker = (intervalMs = 10000) => {
           });
         }
       }
+
+      // 3. Scan and mark expired wants (past 30 days)
+      await scanAndExpireWants();
     } catch (err) {
       console.error('[Worker Error] Auction closure scanner error:', err);
     }

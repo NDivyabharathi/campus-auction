@@ -128,6 +128,24 @@ At the end of every semester or academic year, senior students often leave behin
 - **Notification Integration**: Sellers are automatically notified via Socket.IO and the notification center when questions are asked, and students are notified when answers are posted.
 - **Live WebSockets**: Instant updates on `new_question`, `new_answer`, `question_updated`, and `question_deleted`.
 
+### 9. Never Miss What You Need — Saved Wants & Smart Alerts
+- **Dedicated My Wants Center (`/my-wants`)**: Authenticated students can save search criteria for campus items they need (e.g. *"scientific calculator"*, *"campus cycle"*, *"engineering drafter"*, *"textbook"*).
+- **Criterion Filters**:
+  - **Keywords**: Required (2-100 characters) matching titles, descriptions, and collegiate synonym expansion (*"calc"* $\leftrightarrow$ *"calculator"*, *"cycle"* $\leftrightarrow$ *"bicycle"*, *"textbook"* $\leftrightarrow$ *"book"*).
+  - **Category**: Optional dropdown constrained to official campus auction categories.
+  - **Max Starting Price**: Optional upper limit filtering listing initial starting prices (not fluctuating live leading bids).
+  - **Preferred Condition**: Optional quality threshold serving as minimum acceptable quality (*"Good"* matches *Good*, *Like New*, and *New*).
+- **Immediate Scan on Save**: Immediately searches active campus listings on want creation, renewal, or resume and alerts the student if matches currently exist.
+- **Continuous 24/7 Background Alert Engine**: Hooks directly into listing publication (`checkNewListingMatches`) to dispatch instant alerts the second a peer publishes a matching item.
+- **Multi-Channel Notifications**:
+  - **In-App & Bell**: Persistent `want_match` notifications linking directly to matching auctions.
+  - **Browser Alerts**: Native system push notifications via Notification API.
+  - **Optional Email Alerts**: Modular SMTP email service (`sendGroupedMatchEmail`) that operates with zero startup breakage or crashes when SMTP credentials are not configured.
+- **10 Active Wants Limit**: Strictly enforces a maximum of 10 active saved wants per student (backend and frontend counters). Paused and fulfilled wants do not count toward the limit.
+- **30-Day Lifecycle & Renewals**: Wants expire automatically after 30 days via background sweeps. Students can pause, resume, or renew expired wants for another 30 days with a single click.
+- **Grouped Match Viewer**: Dedicated modal displaying grouped matching listings with photo thumbnails, current bids, countdowns, and transparent match reasons (*"Matched keywords 'scientific calculator' • Category: Electronics • Starting price ₹300 ≤ ₹400"*).
+- **Anti-Spam & Idempotency**: Compound unique index `{ want: 1, listing: 1 }` on `WantMatch` prevents duplicate alerts across background checks, retries, and renewals.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -412,6 +430,16 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - `DELETE /api/questions/:questionId` — Delete question (author only, locked once answered)
 - `POST /api/questions/:questionId/answers` — Post seller/student answer (protected)
 
+### Saved Wants & Smart Alerts
+- `GET /api/wants` — List student's saved wants with active counts (protected)
+- `POST /api/wants` — Create saved want with 10-active limit and immediate catalog scan (protected)
+- `GET /api/wants/:id` — Retrieve want details (author only, 403 otherwise)
+- `PATCH /api/wants/:id` — Toggle status (`ACTIVE` $\leftrightarrow$ `PAUSED`)
+- `POST /api/wants/:id/renew` — Renew expired want for another 30 days
+- `POST /api/wants/:id/fulfill` — Mark want as fulfilled (`FULFILLED`)
+- `DELETE /api/wants/:id` — Permanently delete want and associated matches
+- `GET /api/wants/:id/matches` — Retrieve grouped live listing matches with match reasons
+
 ### Automated Integration Tests
 Run the comprehensive test suites:
 ```bash
@@ -426,6 +454,9 @@ npx tsx server/src/scripts/testAssistantApi.ts
 
 # 4. Questions & Answers Discussion Suite (17 tests)
 npx tsx server/src/scripts/testQuestions.ts
+
+# 5. Saved Wants & Smart Alerts Test Suite (20 tests)
+npx tsx server/src/scripts/testWants.ts
 ```
 
 ### Images

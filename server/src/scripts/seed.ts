@@ -7,6 +7,8 @@ import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
 import { Notification } from '../models/Notification.js';
 import { Question } from '../models/Question.js';
+import { Want } from '../models/Want.js';
+import { WantMatch } from '../models/WantMatch.js';
 
 const DEMO_PASSWORD = 'kongupassword123';
 
@@ -22,6 +24,8 @@ export const seedDatabase = async () => {
     await Transaction.deleteMany({});
     await Notification.deleteMany({});
     await Question.deleteMany({});
+    await Want.deleteMany({});
+    await WantMatch.deleteMany({});
     console.log('[Seed] Cleared existing demo data.');
 
     // 1. Create Student Accounts
@@ -124,7 +128,7 @@ export const seedDatabase = async () => {
     ]);
 
     // Listing 3: Active with 0 bids (Starting price display test)
-    await Auction.create({
+    const book = await Auction.create({
       sellerId: priya._id,
       title: 'Higher Engineering Mathematics - B.S. Grewal (44th Ed)',
       description: 'Clean textbook with no markings. Essential for all 1st and 2nd year engineering students across all branches.',
@@ -386,7 +390,107 @@ export const seedDatabase = async () => {
       },
     ]);
 
-    console.log('[Seed] Database successfully seeded with 5 Kongu students, 8 varied auctions, bids, transactions, notifications, and Q&A!');
+    // 7. Seed Saved Wants & Matches
+    const rahulWant = await Want.create({
+      student: rahul._id,
+      keywords: 'scientific calculator',
+      category: 'Electronics',
+      maxPrice: 400,
+      condition: 'Good',
+      status: 'ACTIVE',
+      matchCount: 1,
+      expiresAt: new Date(now + 30 * 24 * 3600 * 1000),
+    });
+
+    await WantMatch.create({
+      want: rahulWant._id,
+      listing: calc._id,
+      student: rahul._id,
+      matchReason: 'Matched keywords "scientific calculator" • Category: Electronics • Starting price ₹300 ≤ ₹400 • Condition: Good+',
+      matchedAt: new Date(now - 12 * 3600 * 1000),
+    });
+
+    await Notification.create({
+      recipientId: rahul._id,
+      senderId: divya._id,
+      auctionId: calc._id,
+      type: 'want_match',
+      title: 'Item Matched Your Saved Want!',
+      message: 'A seller listed "Casio fx-991EX ClassWiz Scientific Calculator" matching your saved want for "scientific calculator" (Starting ₹300).',
+      readAt: null,
+      createdAt: new Date(now - 12 * 3600 * 1000),
+    });
+
+    const priyaWant = await Want.create({
+      student: priya._id,
+      keywords: 'campus cycle',
+      category: 'Cycles and Transportation',
+      maxPrice: 1600,
+      condition: 'Good',
+      status: 'ACTIVE',
+      matchCount: 2,
+      expiresAt: new Date(now + 28 * 24 * 3600 * 1000),
+    });
+
+    await WantMatch.create([
+      {
+        want: priyaWant._id,
+        listing: cycle._id,
+        student: priya._id,
+        matchReason: 'Matched keywords "campus cycle" • Category: Cycles and Transportation • Starting price ₹1500 ≤ ₹1600',
+        matchedAt: new Date(now - 8 * 3600 * 1000),
+      },
+      {
+        want: priyaWant._id,
+        listing: cycle2._id,
+        student: priya._id,
+        matchReason: 'Matched keywords "campus cycle" • Category: Cycles and Transportation • Starting price ₹1600 ≤ ₹1600',
+        matchedAt: new Date(now - 8 * 3600 * 1000),
+      },
+    ]);
+
+    const snehaWant = await Want.create({
+      student: sneha._id,
+      keywords: 'engineering mathematics textbook',
+      category: 'Books and Study Materials',
+      maxPrice: 350,
+      condition: 'Good',
+      status: 'ACTIVE',
+      matchCount: 1,
+      expiresAt: new Date(now + 25 * 24 * 3600 * 1000),
+    });
+
+    await WantMatch.create({
+      want: snehaWant._id,
+      listing: book._id,
+      student: sneha._id,
+      matchReason: 'Matched keywords "engineering mathematics textbook" • Category: Books and Study Materials • Starting price ₹280 ≤ ₹350',
+      matchedAt: new Date(now - 6 * 3600 * 1000),
+    });
+
+    await Want.create([
+      {
+        student: karthik._id,
+        keywords: 'hostel bed desk',
+        category: 'Hostel Essentials',
+        maxPrice: 400,
+        status: 'FULFILLED',
+        matchCount: 1,
+        expiresAt: new Date(now + 20 * 24 * 3600 * 1000),
+        fulfilledAt: new Date(now - 2 * 24 * 3600 * 1000),
+      },
+      {
+        student: divya._id,
+        keywords: 'lab multimeter kit',
+        category: 'Laboratory Equipment',
+        maxPrice: 600,
+        status: 'PAUSED',
+        matchCount: 0,
+        expiresAt: new Date(now + 15 * 24 * 3600 * 1000),
+      },
+    ]);
+
+    console.log('[Seed] Database successfully seeded with 5 Kongu students, 8 varied auctions, bids, transactions, notifications, Q&A, and saved wants!');
     process.exit(0);
   } catch (error) {
     console.error('[Seed Error] Failed to seed database:', error);

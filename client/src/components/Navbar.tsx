@@ -11,6 +11,7 @@ import {
   X,
   Compass,
   Bell,
+  BellRing,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { NotificationDropdown } from './NotificationDropdown.js';
@@ -37,6 +38,7 @@ export const Navbar: React.FC = () => {
     { name: 'Sell an Item', path: '/create-listing', icon: PlusCircle, highlight: true },
     { name: 'My Listings', path: '/my-listings', icon: Package, protected: true },
     { name: 'My Bids', path: '/my-bids', icon: History, protected: true },
+    { name: 'My Wants', path: '/my-wants', icon: BellRing, protected: true },
     { name: 'Transactions', path: '/transactions', icon: Handshake, protected: true },
   ];
 

@@ -4,6 +4,7 @@ import { Auction, IAuction } from '../models/Auction.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { broadcastAuctionUpdate } from '../socket.js';
 import { processAuctionClosure } from '../services/auctionClosureService.js';
+import { checkNewListingMatches } from '../services/wantService.js';
 
 export const getAuctions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -234,6 +235,11 @@ export const createAuction = async (req: AuthRequest, res: Response): Promise<vo
       .lean();
 
     broadcastAuctionUpdate(auction._id.toString(), 'auction_created', populatedAuction);
+
+    // Asynchronously scan and alert active saved wants matching this new listing
+    checkNewListingMatches(auction).catch((err) =>
+      console.error('[Want Matching Error on Create Auction]', err)
+    );
 
     res.status(201).json({
       success: true,

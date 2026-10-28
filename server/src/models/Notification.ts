@@ -15,6 +15,8 @@ export type NotificationType =
   | 'handover_reassigned'
   | 'question_asked'
   | 'answer_received'
+  | 'want_match'
+  | 'want_fulfilled_suggestion'
   | 'system';
 
 export interface INotification extends Document {
@@ -58,6 +60,8 @@ const notificationSchema = new Schema<INotification>(
         'handover_reassigned',
         'question_asked',
         'answer_received',
+        'want_match',
+        'want_fulfilled_suggestion',
         'system',
       ],
       index: true,
