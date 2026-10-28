@@ -6,6 +6,7 @@ import { Transaction } from '../models/Transaction.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { broadcastAuctionUpdate } from '../socket.js';
 import { processAuctionClosure } from '../services/auctionClosureService.js';
+import { createNotification } from '../services/notificationService.js';
 
 export const placeBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -88,6 +89,8 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
+    const previousLeadingBidderId = auction.currentLeadingBidderId;
+
     // 6. Concurrency Control: Atomic update
     // We check that auction is still active and currentLeadingBid matches what we validated
     const filter: any = {
@@ -149,6 +152,29 @@ export const placeBid = async (req: AuthRequest, res: Response): Promise<void> =
       bidCount: updatedAuction.bidCount,
       minAcceptableBid: bidAmount + updatedAuction.minimumBidIncrement,
     });
+
+    // 9. Dispatch in-app and push notifications asynchronously
+    // 9a. Notify seller of incoming bid
+    createNotification({
+      recipientId: auction.sellerId.toString(),
+      type: 'bid_received',
+      title: `New Bid on ${auction.title}`,
+      message: `${req.user.fullName} placed a bid of ₹${bidAmount} on "${auction.title}".`,
+      auctionId: auction._id.toString(),
+      actorId: bidderId.toString(),
+    }).catch((err) => console.error('[Notification Error] Bid received alert:', err));
+
+    // 9b. Notify previous leading bidder if outbid
+    if (previousLeadingBidderId && !previousLeadingBidderId.equals(bidderId)) {
+      createNotification({
+        recipientId: previousLeadingBidderId.toString(),
+        type: 'outbid',
+        title: "You've been outbid!",
+        message: `Someone placed a higher bid of ₹${bidAmount} on "${auction.title}".`,
+        auctionId: auction._id.toString(),
+        actorId: bidderId.toString(),
+      }).catch((err) => console.error('[Notification Error] Outbid alert:', err));
+    }
 
     res.status(201).json({
       success: true,

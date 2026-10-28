@@ -7,6 +7,7 @@ import { AuthRequest } from '../middleware/auth.js';
 import { broadcastAuctionUpdate } from '../socket.js';
 import { ENV } from '../config/env.js';
 import { processAuctionClosure } from '../services/auctionClosureService.js';
+import { createNotification } from '../services/notificationService.js';
 
 export const getMyTransactions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -149,6 +150,18 @@ export const updateHandoverDetails = async (req: AuthRequest, res: Response): Pr
 
     broadcastAuctionUpdate(transaction.auctionId.toString(), 'transaction_updated', populated);
 
+    // Notify the other party about proposed/updated handover details
+    const peerId = isSeller ? transaction.buyerId : transaction.sellerId;
+    createNotification({
+      recipientId: peerId.toString(),
+      type: 'handover_scheduled',
+      title: 'Handover Meeting Scheduled',
+      message: `${req.user.fullName} proposed/updated meeting details for "${(populated?.auctionId as any)?.title || 'your item'}": ${transaction.handoverLocation}.`,
+      auctionId: (populated?.auctionId as any)?._id || transaction.auctionId,
+      transactionId: transaction._id,
+      actorId: req.user._id,
+    }).catch((err) => console.error('[Notification Error] Handover scheduled:', err));
+
     res.status(200).json({
       success: true,
       message: 'Campus handover meeting details successfully updated.',
@@ -183,6 +196,8 @@ export const confirmHandover = async (req: AuthRequest, res: Response): Promise<
       res.status(404).json({ success: false, message: 'Transaction not found.' });
       return;
     }
+
+    const auction = await Auction.findById(transaction.auctionId);
 
     const userId = req.user._id;
     const isSeller = transaction.sellerId.equals(userId);
@@ -231,6 +246,43 @@ export const confirmHandover = async (req: AuthRequest, res: Response): Promise<
 
     broadcastAuctionUpdate(transaction.auctionId.toString(), 'transaction_updated', populated);
 
+    const itemTitle = (populated?.auctionId as any)?.title || 'your item';
+    const peerId = isSeller ? transaction.buyerId : transaction.sellerId;
+
+    if (isFullyConfirmed) {
+      // Notify both parties that handover is completed
+      createNotification({
+        recipientId: transaction.sellerId.toString(),
+        type: 'transaction_completed',
+        title: 'Handover Completed! 🎉',
+        message: `Physical handover for "${itemTitle}" was verified by both parties. Transaction complete!`,
+        auctionId: (populated?.auctionId as any)?._id || transaction.auctionId,
+        transactionId: transaction._id,
+        deduplicationKey: `tx_completed_seller_${transaction._id}`,
+      }).catch((err) => console.error('[Notification Error] Transaction completed (seller):', err));
+
+      createNotification({
+        recipientId: transaction.buyerId.toString(),
+        type: 'transaction_completed',
+        title: 'Handover Completed! 🎉',
+        message: `Physical handover for "${itemTitle}" was verified by both parties. Enjoy your item!`,
+        auctionId: (populated?.auctionId as any)?._id || transaction.auctionId,
+        transactionId: transaction._id,
+        deduplicationKey: `tx_completed_buyer_${transaction._id}`,
+      }).catch((err) => console.error('[Notification Error] Transaction completed (buyer):', err));
+    } else {
+      // Notify the other party that their peer has confirmed
+      createNotification({
+        recipientId: peerId.toString(),
+        type: 'handover_confirmed_by_peer',
+        title: 'Peer Confirmed Handover',
+        message: `${req.user.fullName} confirmed physical handover for "${itemTitle}". Please confirm on your end to complete transaction.`,
+        auctionId: (populated?.auctionId as any)?._id || transaction.auctionId,
+        transactionId: transaction._id,
+        actorId: req.user._id,
+      }).catch((err) => console.error('[Notification Error] Handover confirmed by peer:', err));
+    }
+
     res.status(200).json({
       success: true,
       message: isFullyConfirmed
@@ -272,6 +324,8 @@ export const failAndReassign = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
+    const auction = await Auction.findById(transaction.auctionId);
+
     const userId = req.user._id;
     const isSeller = transaction.sellerId.equals(userId);
 
@@ -297,6 +351,18 @@ export const failAndReassign = async (req: AuthRequest, res: Response): Promise<
     transaction.failureReason = reason;
     await transaction.save();
 
+    // Notify the failed buyer
+    createNotification({
+      recipientId: transaction.buyerId.toString(),
+      type: 'transaction_failed',
+      title: 'Handover Marked Missed / Failed',
+      message: `The campus handover for "${auction?.title || 'your item'}" was marked as failed: ${reason}.`,
+      auctionId: transaction.auctionId,
+      transactionId: transaction._id,
+      actorId: req.user._id,
+      deduplicationKey: `tx_failed_${transaction._id}`,
+    }).catch((err) => console.error('[Notification Error] Transaction failed:', err));
+
     // 2. Find previous failed buyer IDs for this auction to prevent re-offering to same failed bidder
     const failedTransactions = await Transaction.find({
       auctionId: transaction.auctionId,
@@ -313,13 +379,20 @@ export const failAndReassign = async (req: AuthRequest, res: Response): Promise<
       .sort({ amount: -1, createdAt: 1 })
       .populate('bidderId', 'fullName department year');
 
-    const auction = await Auction.findById(transaction.auctionId);
-
     if (!nextEligibleBid || !auction) {
       // No more eligible bidders -> Mark auction unsold
       if (auction) {
         auction.status = 'unsold';
         await auction.save();
+
+        createNotification({
+          recipientId: auction.sellerId.toString(),
+          type: 'auction_unsold',
+          title: 'Item Unsold (No Further Bidders)',
+          message: `No other eligible bidders remain for "${auction.title}". The auction has been marked unsold.`,
+          auctionId: auction._id,
+          deduplicationKey: `auction_unsold_after_fail_${transaction._id}`,
+        }).catch((err) => console.error('[Notification Error] Unsold after fail:', err));
       }
 
       broadcastAuctionUpdate(transaction.auctionId.toString(), 'auction_ended', {
@@ -364,6 +437,32 @@ export const failAndReassign = async (req: AuthRequest, res: Response): Promise<
       amount: nextEligibleBid.amount,
       transaction: populatedNew,
     });
+
+    const newWinnerId = ((nextEligibleBid.bidderId as any)._id || nextEligibleBid.bidderId).toString();
+    const newWinnerName = (nextEligibleBid.bidderId as any).fullName || 'Kongu student';
+
+    // Notify new winning bidder
+    createNotification({
+      recipientId: newWinnerId,
+      type: 'handover_reassigned',
+      title: 'You are Next Eligible Bidder! 🎉',
+      message: `The previous buyer missed pickup for "${auction.title}". The item is now offered and reserved for you at ₹${nextEligibleBid.amount}!`,
+      auctionId: auction._id,
+      transactionId: newTransaction._id,
+      actorId: auction.sellerId,
+      deduplicationKey: `tx_reassigned_buyer_${newTransaction._id}`,
+    }).catch((err) => console.error('[Notification Error] Reassigned (buyer):', err));
+
+    // Notify seller
+    createNotification({
+      recipientId: auction.sellerId.toString(),
+      type: 'handover_reassigned',
+      title: 'Item Reassigned to Next Bidder',
+      message: `"${auction.title}" was offered to the next highest bidder (${newWinnerName}) for ₹${nextEligibleBid.amount}. Please coordinate handover.`,
+      auctionId: auction._id,
+      transactionId: newTransaction._id,
+      deduplicationKey: `tx_reassigned_seller_${newTransaction._id}`,
+    }).catch((err) => console.error('[Notification Error] Reassigned (seller):', err));
 
     res.status(200).json({
       success: true,

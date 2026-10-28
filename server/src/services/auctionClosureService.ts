@@ -3,6 +3,7 @@ import { Auction } from '../models/Auction.js';
 import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
 import { broadcastAuctionUpdate } from '../socket.js';
+import { createNotification } from './notificationService.js';
 
 export const processAuctionClosure = async (auctionId: string): Promise<any> => {
   try {
@@ -30,6 +31,16 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
         message: 'Auction closed with no bids.',
       });
 
+      // Notify seller that auction ended without bids
+      await createNotification({
+        recipientId: auction.sellerId.toString(),
+        type: 'auction_unsold',
+        title: 'Auction Ended (Unsold)',
+        message: `Your listing "${auction.title}" closed without any bids.`,
+        auctionId: auction._id,
+        deduplicationKey: `auction_unsold_${auction._id}`,
+      });
+
       return auction;
     }
 
@@ -38,6 +49,9 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
     auction.currentLeadingBid = highestBid.amount;
     auction.currentLeadingBidderId = highestBid.bidderId as any;
     await auction.save();
+
+    const winnerId = ((highestBid.bidderId as any)._id || highestBid.bidderId).toString();
+    const winnerName = (highestBid.bidderId as any).fullName || 'Kongu Student';
 
     // Idempotently check for existing transaction
     let transaction = await Transaction.findOne({
@@ -52,7 +66,7 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       transaction = await Transaction.create({
         auctionId: auction._id,
         sellerId: auction.sellerId,
-        buyerId: (highestBid.bidderId as any)._id || highestBid.bidderId,
+        buyerId: new mongoose.Types.ObjectId(winnerId),
         amount: highestBid.amount,
         status: 'awaiting_handover',
         reservationDeadline,
@@ -60,9 +74,7 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       });
 
       console.log(
-        `[Auction Closure] Auction "${auction.title}" closed. Winner: ${
-          (highestBid.bidderId as any).fullName || 'Bidder'
-        } for ₹${highestBid.amount}. Reservation created.`
+        `[Auction Closure] Auction "${auction.title}" closed. Winner: ${winnerName} for ₹${highestBid.amount}. Reservation created.`
       );
     }
 
@@ -74,6 +86,55 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
       transactionId: transaction._id,
     });
 
+    // 1. Notify Seller that item was sold
+    await createNotification({
+      recipientId: auction.sellerId.toString(),
+      type: 'auction_sold',
+      title: 'Auction Won! Item Reserved',
+      message: `"${auction.title}" was won by ${winnerName} for ₹${highestBid.amount}. Please propose or confirm campus handover.`,
+      auctionId: auction._id,
+      transactionId: transaction._id,
+      actorId: new mongoose.Types.ObjectId(winnerId),
+      deduplicationKey: `auction_sold_${auction._id}`,
+    });
+
+    // 2. Notify Winner that they won
+    await createNotification({
+      recipientId: winnerId,
+      type: 'auction_won',
+      title: 'You Won the Auction! 🎉',
+      message: `Congratulations! You won "${auction.title}" for ₹${highestBid.amount}. Coordinate campus handover now.`,
+      auctionId: auction._id,
+      transactionId: transaction._id,
+      actorId: auction.sellerId,
+      deduplicationKey: `auction_won_${auction._id}`,
+    });
+
+    // 3. Notify other distinct bidders that the auction has concluded
+    try {
+      const otherBidders = await Bid.find({
+        auctionId: auction._id,
+        bidderId: {
+          $ne: new mongoose.Types.ObjectId(winnerId),
+        },
+      }).distinct('bidderId');
+
+      for (const otherBidderId of otherBidders) {
+        if (!otherBidderId.equals(auction.sellerId)) {
+          await createNotification({
+            recipientId: otherBidderId.toString(),
+            type: 'auction_lost',
+            title: 'Auction Concluded',
+            message: `The auction for "${auction.title}" has concluded. The winning bid was ₹${highestBid.amount}.`,
+            auctionId: auction._id,
+            deduplicationKey: `auction_lost_${auction._id}_${otherBidderId}`,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('[Auction Closure] Error notifying other bidders:', err);
+    }
+
     return auction;
   } catch (error) {
     console.error(`[Auction Closure Error] Failed to close auction ${auctionId}:`, error);
@@ -81,7 +142,7 @@ export const processAuctionClosure = async (auctionId: string): Promise<any> => 
   }
 };
 
-// Periodic background worker that scans for expired auctions
+// Periodic background worker that scans for expired auctions and ending-soon auctions
 let closureInterval: NodeJS.Timeout | null = null;
 
 export const startAuctionClosureWorker = (intervalMs = 10000) => {
@@ -90,6 +151,8 @@ export const startAuctionClosureWorker = (intervalMs = 10000) => {
   closureInterval = setInterval(async () => {
     try {
       const now = new Date();
+
+      // 1. Scan for expired active auctions to close
       const expiredActiveAuctions = await Auction.find({
         status: 'active',
         closingAt: { $lte: now },
@@ -99,6 +162,31 @@ export const startAuctionClosureWorker = (intervalMs = 10000) => {
         console.log(`[Worker] Found ${expiredActiveAuctions.length} expired active auctions to close.`);
         for (const auc of expiredActiveAuctions) {
           await processAuctionClosure(auc._id.toString());
+        }
+      }
+
+      // 2. Scan for auctions ending soon (< 5 minutes)
+      const endingSoonThreshold = 5 * 60 * 1000; // 5 minutes
+      const inFiveMins = new Date(now.getTime() + endingSoonThreshold);
+
+      const endingSoonAuctions = await Auction.find({
+        status: 'active',
+        closingAt: { $gt: now, $lte: inFiveMins },
+      }).select('_id title currentLeadingBid closingAt');
+
+      for (const auc of endingSoonAuctions) {
+        // Find all distinct students who have placed a bid on this auction
+        const bidderIds = await Bid.find({ auctionId: auc._id }).distinct('bidderId');
+        for (const bId of bidderIds) {
+          // Send ending-soon alert with deterministic deduplication key
+          await createNotification({
+            recipientId: bId.toString(),
+            type: 'auction_ending_soon',
+            title: 'Auction Ending Soon (< 5 mins)',
+            message: `"${auc.title}" is closing in less than 5 minutes! Current leading bid is ₹${auc.currentLeadingBid}.`,
+            auctionId: auc._id,
+            deduplicationKey: `auction_ending_soon_${auc._id}_${bId}`,
+          });
         }
       }
     } catch (err) {

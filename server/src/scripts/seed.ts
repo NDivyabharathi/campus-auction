@@ -5,6 +5,7 @@ import { User } from '../models/User.js';
 import { Auction } from '../models/Auction.js';
 import { Bid } from '../models/Bid.js';
 import { Transaction } from '../models/Transaction.js';
+import { Notification } from '../models/Notification.js';
 
 const DEMO_PASSWORD = 'kongupassword123';
 
@@ -18,6 +19,7 @@ export const seedDatabase = async () => {
     await Auction.deleteMany({});
     await Bid.deleteMany({});
     await Transaction.deleteMany({});
+    await Notification.deleteMany({});
     console.log('[Seed] Cleared existing demo data.');
 
     // 1. Create Student Accounts
@@ -240,7 +242,60 @@ export const seedDatabase = async () => {
       attemptNumber: 1,
     });
 
-    console.log('[Seed] Database successfully seeded with 5 Kongu students, 6 varied auctions, bids, and transactions!');
+    // 4. Seed sample notifications for demo evaluation
+    await Notification.create([
+      {
+        recipientId: divya._id,
+        type: 'bid_received',
+        title: 'New Bid of ₹420',
+        message: 'Priya K placed a bid of ₹420 on your listing "Casio fx-991EX ClassWiz Scientific Calculator".',
+        auctionId: calc._id,
+        actorId: priya._id,
+        readAt: null, // Unread alert for Divya
+        createdAt: new Date(now - 1 * 3600 * 1000),
+      },
+      {
+        recipientId: rahul._id,
+        type: 'outbid',
+        title: "You've been outbid!",
+        message: 'Someone placed a higher bid of ₹340 on "Casio fx-991EX ClassWiz Scientific Calculator".',
+        auctionId: calc._id,
+        actorId: priya._id,
+        readAt: null, // Unread alert for Rahul
+        createdAt: new Date(now - 8 * 3600 * 1000),
+      },
+      {
+        recipientId: sneha._id,
+        type: 'auction_won',
+        title: 'You Won the Auction! 🎉',
+        message: 'Congratulations! You won "Omega Engineering Mini Drafter & Full Imperial Board" for ₹540.',
+        auctionId: drafter._id,
+        actorId: karthik._id,
+        readAt: null, // Unread alert for Sneha
+        createdAt: new Date(now - 2 * 3600 * 1000),
+      },
+      {
+        recipientId: divya._id,
+        type: 'transaction_completed',
+        title: 'Handover Completed! 🎉',
+        message: 'Physical handover for "Prestige 1.5L Stainless Steel Electric Kettle" is completed. Enjoy your item!',
+        auctionId: kettle._id,
+        actorId: sneha._id,
+        readAt: new Date(now - 10 * 3600 * 1000), // Read
+        createdAt: new Date(now - 11 * 3600 * 1000),
+      },
+      {
+        recipientId: rahul._id,
+        type: 'auction_ending_soon',
+        title: 'Auction Ending Soon (< 45 mins)',
+        message: '"Hero Sprint 26T Campus Bicycle with Front Basket" is in its final hour! Current leading bid is ₹1800.',
+        auctionId: cycle._id,
+        readAt: null, // Unread alert for Rahul
+        createdAt: new Date(now - 10 * 60 * 1000),
+      },
+    ]);
+
+    console.log('[Seed] Database successfully seeded with 5 Kongu students, 6 varied auctions, bids, transactions, and notifications!');
     process.exit(0);
   } catch (error) {
     console.error('[Seed Error] Failed to seed database:', error);

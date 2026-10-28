@@ -77,3 +77,45 @@ export interface Transaction {
   createdAt: string;
   updatedAt: string;
 }
+
+export type NotificationType =
+  | 'bid_received'
+  | 'outbid'
+  | 'auction_won'
+  | 'auction_lost'
+  | 'auction_sold'
+  | 'auction_unsold'
+  | 'auction_ending_soon'
+  | 'handover_scheduled'
+  | 'handover_confirmed_by_peer'
+  | 'transaction_completed'
+  | 'transaction_failed'
+  | 'handover_reassigned'
+  | 'system';
+
+export interface AppNotification {
+  _id: string;
+  recipientId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  auctionId?: {
+    _id: string;
+    title: string;
+    startingPrice: number;
+    currentLeadingBid: number;
+    status: string;
+    imageUrls?: string[];
+  } | null;
+  transactionId?: string | null;
+  actorId?: {
+    _id: string;
+    fullName: string;
+    department?: string;
+  } | null;
+  readAt?: string | null;
+  deduplicationKey?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+

@@ -84,6 +84,24 @@ At the end of every semester or academic year, senior students often leave behin
 - **Two-Party Confirmation**: Both seller and buyer must click "Confirm Handover Completed" in the UI to finalize the exchange and mark the auction `sold`.
 - **Failed Pickup & Next-Bidder Reassignment**: If the winning bidder fails to collect the item within the agreed window, the seller can report the failure. The system automatically reassigns the reservation to the **next-highest eligible bidder** (Round #2) without losing transaction history.
 
+### 6. Real-Time Notification System & Browser Alerts
+- **Notification Dropdown & Center**: Bell icon in navbar with live unread counter badge, dropdown panel, and full `/notifications` page.
+- **Socket.IO Delivery**: Real-time delivery to authenticated student rooms (`user:${userId}`); persists in MongoDB so alerts are never lost when offline.
+- **Native Browser Notifications**:
+  - Optional user-enabled browser alerts via the Notifications API.
+  - Clear, non-intrusive prompt explaining value before requesting permission.
+  - Cross-tab deduplication using `BroadcastChannel` preventing duplicate popups across tabs.
+  - Clicking notification focuses window and navigates to the relevant auction or handover.
+- **Comprehensive Event Coverage**:
+  - `bid_received`: Alerts seller of incoming bids with student name and amount.
+  - `outbid`: Instantly warns previous leading bidder when someone outbids them.
+  - `auction_won` & `auction_sold`: Celebrates with winner and directs seller to schedule handover.
+  - `auction_ending_soon`: Automatically alerts active bidders 5 minutes before deadline.
+  - `handover_scheduled` & `handover_confirmed_by_peer`: Syncs meeting arrangements between buyer and seller.
+  - `transaction_completed`: Celebrates verified 2-party exchange.
+  - `transaction_failed` & `handover_reassigned`: Reassigns item to the second-highest bidder on missed pickup.
+- **Deduplication Engine**: Database-enforced `deduplicationKey` prevents worker restarts or repeated triggers from spamming duplicate alerts.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -349,6 +367,21 @@ Follow this step-by-step scenario to showcase the application during evaluation:
 - `PATCH /api/transactions/:id/handover` — Schedule campus meeting spot, date, and notes
 - `POST /api/transactions/:id/confirm` — 2-party physical exchange confirmation
 - `POST /api/transactions/:id/fail-and-reassign` — Mark failed pickup & fallback to next bidder
+
+### Notifications (Real-Time & In-App)
+- `GET /api/notifications` — Retrieve student's alerts (paginated, unread filter support)
+- `GET /api/notifications/unread-count` — Real-time count of unread notifications
+- `PATCH /api/notifications/:id/read` — Mark single notification as read
+- `PATCH /api/notifications/read-all` — Mark all student notifications as read
+- `DELETE /api/notifications/:id` — Dismiss/remove notification
+- **Socket.IO Events**: `notification:new`, `notification:unread_count`
+
+### Automated Integration Tests
+Run the comprehensive 9-point notification integration suite:
+```bash
+npx tsx server/src/scripts/testNotifications.ts
+```
+*(Tests bid notification, outbid alerts, deduplication prevention, unread calculation, mark-read, mark-all-read, user isolation, closure notifications, and dismissal).*
 
 ### Images
 - `POST /api/images/upload` — Upload photos to MongoDB GridFS (JPEG, PNG, WebP $\le$ 5MB)

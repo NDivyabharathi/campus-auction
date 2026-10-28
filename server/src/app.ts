@@ -7,6 +7,7 @@ import imageRoutes from './routes/imageRoutes.js';
 import auctionRoutes from './routes/auctionRoutes.js';
 import bidRoutes from './routes/bidRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import devRoutes from './routes/devRoutes.js';
 
 export const createApp = () => {
@@ -43,6 +44,7 @@ export const createApp = () => {
   app.use('/api/auctions', auctionRoutes);
   app.use('/api/bids', bidRoutes);
   app.use('/api/transactions', transactionRoutes);
+  app.use('/api/notifications', notificationRoutes);
   app.use('/api/dev', devRoutes);
 
   // 404 Not Found
